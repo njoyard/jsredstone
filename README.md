@@ -16,5 +16,5 @@ License
 
 JSRedstone is distributed under the GPLv3 license. See the file `LICENSE` for more information.
 
-Copyright &copy; 2011 Nicolas Joyard &lt;joyard.nicolas AT gmail.com&gt;
+Copyright (c) 2011 Nicolas Joyard
 
