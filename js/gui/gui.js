@@ -21,7 +21,7 @@ define(
 'gui/worldeditor',
 'util/storage',
 'const',
-'lang/lang'],
+'lib/i18n!nls/lang'],
 function(blocks, WorldEditor, storage, cst, _) {
 	var Gui;
 

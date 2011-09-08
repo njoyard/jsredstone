@@ -17,7 +17,7 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 define({
-	/*root: {*/
+	root: {
 		tools: {
 			clear: "New world",
 			store: "Load/Save",
@@ -28,6 +28,6 @@ define({
 			repeater: "Redstone repeater (R)",
 			button: "Button (B)"
 		}
-	/*},
-	'fr': true*/
+	},
+	'fr': true
 });
