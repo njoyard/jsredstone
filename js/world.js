@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-define(['block/empty', 'block/solid'],
-function (EmptyBlock, SolidBlock) {
+define(['block/empty', 'block/solid', 'lib/signals'],
+function (EmptyBlock, SolidBlock, signals) {
 	var World;
 
 	/* World constructor : takes length, width and depth as parameters */
@@ -56,10 +56,8 @@ function (EmptyBlock, SolidBlock) {
 
 		this.creating = false;
 		this.tickCount = 0;
-		
+		this.ticked = new signals.Signal();
 	};
-	
-	World.enablePublish();
 
 	/* Block setter */
 	World.prototype.set = function (coords, block) {
@@ -85,7 +83,7 @@ function (EmptyBlock, SolidBlock) {
 
 	/* Ticker */
 	World.prototype.tick = function () {
-		this.publish('tick', ++this.tickCount);
+		this.ticked.dispatch(++this.tickCount);
 	};
 
 	return World;

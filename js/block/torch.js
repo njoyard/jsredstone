@@ -45,25 +45,9 @@ function (Block, cst) {
 	TorchBlock = function(world, coords, args) {
 		TorchBlock.baseCtor.call(this, world, coords);
 		this.setDirection(args.dir);
-
+		
 		this.sourceCharge = 0;
-		
-		this.ontick = (function(tickcount) {
-			var b;
-
-			/* Invert charge measured on previous tick */
-			this.setCharge(this.sourceCharge > 0 ? 0 : cst.maxCharge);
-
-			/* Measure charge of source block and store it for next tick */
-			b = this.get(sourcecoords[this.dir]);
-			if (typeof b !== 'undefined') {
-				this.sourceCharge = b.getChargeFrom(this.coords);
-			} else {
-				this.sourceCharge = 0;
-			}
-		}).bind(this);
-		
-		world.subscribe('tick', this.ontick);
+		this.tickBinding = world.ticked.add(this.onTick.bind(this), this);
 	};
 	TorchBlock.inherit(Block);
 
@@ -144,7 +128,22 @@ function (Block, cst) {
 
 	TorchBlock.prototype.onRemove = function() {
 		this.setCharge(0);
-		this.world.unsubscribe('tick', this.ontick);
+		this.tickBinding.detach();
+	};
+		
+	TorchBlock.prototype.onTick = function(tickcount) {
+		var b;
+
+		/* Invert charge measured on previous tick */
+		this.setCharge(this.sourceCharge > 0 ? 0 : cst.maxCharge);
+
+		/* Measure charge of source block and store it for next tick */
+		b = this.get(sourcecoords[this.dir]);
+		if (typeof b !== 'undefined') {
+			this.sourceCharge = b.getChargeFrom(this.coords);
+		} else {
+			this.sourceCharge = 0;
+		}
 	};
 	
 	TorchBlock.prototype.serialize = function() {

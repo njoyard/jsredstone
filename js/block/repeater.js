@@ -22,7 +22,6 @@ function (Block, cst) {
 		nb = Block.NB;
 
 	RepeaterBlock = function (world, coords, args) {
-		var rt = cst.repeaterTicks;
 		RepeaterBlock.baseCtor.call(this, world, coords);
 
 		this.chargeBuf = [];
@@ -31,25 +30,7 @@ function (Block, cst) {
 		this.setDelay(args.delay);
 		this.setDirection(args.dir);
 		
-		this.ontick = (function(tickcount) {
-			var b, c;
-			
-			c = this.chargeBuf[(this.chargePtr - rt[this.delay - 1] + 8) % 8];
-			this.setCharge(c > 0 ? cst.maxCharge : 0);
-			
-			// Save input charge in buffer and move pointer forward
-			b = this.get(nb.revkey(this.dir));
-			if (typeof b !== 'undefined') {
-				c = b.getChargeFrom(this.dir);
-			} else {
-				c = 0;
-			}
-			
-			this.chargeBuf[this.chargePtr] = c;
-			this.chargePtr = (this.chargePtr + 1) % 8;
-		}).bind(this);
-		
-		world.subscribe('tick', this.ontick);
+		this.tickBinding = world.ticked.add(this.onTick.bind(this));
 	};
 	RepeaterBlock.inherit(Block);
 
@@ -128,11 +109,29 @@ function (Block, cst) {
 	
 	RepeaterBlock.prototype.onRemove = function() {
 		this.setCharge(0);
-		this.world.unsubscribe('tick', this.ontick);
+		this.tickBinding.detach();
 	};
 	
 	RepeaterBlock.prototype.onClick = function() {
 		this.setDelay(this.delay == 4 ? 1 : this.delay + 1);
+	};
+	
+	RepeaterBlock.prototype.onTick = function(tickcount) {
+		var b, c;
+		
+		c = this.chargeBuf[(this.chargePtr - cst.repeaterTicks[this.delay - 1] + 8) % 8];
+		this.setCharge(c > 0 ? cst.maxCharge : 0);
+		
+		// Save input charge in buffer and move pointer forward
+		b = this.get(nb.revkey(this.dir));
+		if (typeof b !== 'undefined') {
+			c = b.getChargeFrom(this.dir);
+		} else {
+			c = 0;
+		}
+		
+		this.chargeBuf[this.chargePtr] = c;
+		this.chargePtr = (this.chargePtr + 1) % 8;
 	};
 	
 	RepeaterBlock.prototype.serialize = function() {

@@ -64,48 +64,6 @@ if (typeof JSR === 'undefined') {
 			method: function (name, func) {
 				this.prototype[name] = func;
 				return this;
-			},
-			
-			enablePublish: function() {
-				protoDef(this, {
-					__EV__: {
-						events: {},
-						walk: function(event, remove, param) {
-							var i, len, e,
-								events = this.__EV__.events;
-				
-							if (typeof events[event] !== 'undefined') {
-								for (i = 0, len = events[event].length; i < len; i++) {
-									e = events[event][i];
-									if (remove === true && e === param) {
-										return events[event].splice(i, 1);
-									}
-									if (remove === false) {
-										e(param);
-									}
-								}
-							}
-						}
-					},
-					
-					subscribe: function(event, callback) {
-						var events = this.__EV__.events;
-					
-						if (typeof events[event] === 'undefined') {
-							events[event] = [callback];
-						} else {
-							events[event].push(callback);
-						}
-					},
-					
-					unsubscribe: function(event, callback) {
-						this.__EV__.walk.call(this, event, true, callback);
-					},
-					
-					publish: function(event, param) {
-						this.__EV__.walk.call(this, event, false, param);
-					}
-				});
 			}
 		});
 
