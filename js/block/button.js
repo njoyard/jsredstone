@@ -35,8 +35,6 @@ function(Block, cst) {
 		this.remaining = 0;
 		this.setDirection(args.dir);
 		this.setCharge(0);
-		
-		this.tickBinding = world.ticked.add(this.onTick.bind(this));
 	};
 	ButtonBlock.inherit(Block);
 	ButtonBlock.type = 'button';
@@ -115,22 +113,27 @@ function(Block, cst) {
 
 	ButtonBlock.prototype.onRemove = function() {
 		this.setCharge(0);
-		this.tickBinding.detach();
+		if (typeof this.tickBinding !== 'undefined') {
+			this.tickBinding.detach();
+		}
 	};
 	
 	ButtonBlock.prototype.onClick = function() {
 		this.remaining = cst.buttonTicks;
 		this.setCharge(cst.maxCharge);
+		
+		this.tickBinding = world.ticked.add(this.onTick.bind(this));
 	};
 		
 	ButtonBlock.prototype.onTick = function(tickcount) {
 		if (this.remaining > 0) {
 			this.setCharge(cst.maxCharge);
+			this.remaining--;
 		} else {
 			this.setCharge(0);
+			this.tickBinding.detach();
+			delete this.tickBinding;
 		}
-		
-		this.remaining--;
 	};
 	
 	ButtonBlock.prototype.serialize = function () {
