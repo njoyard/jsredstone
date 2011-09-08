@@ -18,8 +18,9 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 
 /* UI */
 
-body {
-	font-family: "DejaVu Sans", "Trebuchet MS", Helvetica, sans-serif;
+body, textarea {
+	font-family: "Trebuchet MS", Helvetica, sans-serif;
+	font-size: 10pt;
 }
 
 #toolbar {
@@ -52,12 +53,48 @@ body {
 	border: 1px solid #880000;
 }
 
-.window_bg {
+.loadsave_bg {
 	position: absolute;
 	top: 0;
 	left: 0;
 	bottom: 0;
 	right: 0;
+	background-color: black;
+	opacity: 0.5;
+}
+
+.loadsave_box {
+	position: absolute;
+	
+	width: 500px;
+	margin-left: -250px;
+	left: 50%;
+	
+	background-color: white;
+	border: 1px solid black;
+	padding: 1em;
+}
+
+.loadsave_box h1 {
+	margin: 0;
+	font-size: 1.1em;
+	font-weight: bold;
+}
+
+.loadsave_box h2 {
+	margin: 1em 0 0 0;
+	font-size: 1em;
+	font-weight: bold;
+	color: #888899;
+}
+
+.loadsave_box input.close {
+	float: right;
+}
+
+.loadsave_box textarea {
+	width: 100%;
+	height: 100px;
 }
 
 /* Levels */

@@ -18,116 +18,117 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 
 define(["blocks", "const"],
 function(blocks, cst) {
-	return function(gui) {
-		var storage = {};
+	var storage = {};
+	
+	storage.getWorldString = function(gui) {
+		var block, b, sb, world,
+			gworld = gui.world,
+			vworld = {},
+			X, Y, Z, saveBlock;
+			
+		world = {
+			x: gworld.size.width,
+			y: gworld.size.height,
+			z: gworld.size.depth,
+			b: []
+		};
 		
-		storage.getWorldString = function() {
-			var block, b, sb, world,
-				gworld = gui.world,
-				vworld = {},
-				X, Y, Z, saveBlock;
+		saveBlock = function(x, y, z) {
+			var block, b;
 				
-			world = {
-				x: gworld.size.width,
-				y: gworld.size.height,
-				z: gworld.size.depth,
-				b: []
-			};
+			if (vworld[z] && vworld[z][y] && vworld[z][y][x]) {
+				// Block already saved
+				return; 
+			}
 			
-			saveBlock = function(x, y, z) {
-				var block, b;
-					
-				if (vworld[z] && vworld[z][y] && vworld[z][y][x]) {
-					// Block already saved
-					return; 
-				}
+			block = gworld.get({x:x, y:y, z:z});
+			if (typeof block !== 'undefined') {
+				b = block.serialize();
 				
-				block = gworld.get({x:x, y:y, z:z});
-				if (typeof block !== 'undefined') {
-					b = block.serialize();
-					
-					if (typeof b !== 'undefined') {
-						// Remember we saved this block
-						vworld[z] = vworld[z] || {};
-						vworld[z][y] = vworld[z][y] || {};
-						vworld[z][y][x] = true;
-					
-						// Save block dependency first
-						if (typeof b.dep !== 'undefined') {
-							saveBlock(b.dep.x, b.dep.y, b.dep.z);
-						}
+				if (typeof b !== 'undefined') {
+					// Remember we saved this block
+					vworld[z] = vworld[z] || {};
+					vworld[z][y] = vworld[z][y] || {};
+					vworld[z][y][x] = true;
 				
-						// Save block
-						world.b.push({
-							t: block.type,
-							p: block.coords,
-							a: b.args
-						});
+					// Save block dependency first
+					if (typeof b.dep !== 'undefined') {
+						saveBlock(b.dep.x, b.dep.y, b.dep.z);
 					}
-				}
-			};
 			
-			for (Z = 0; Z < gworld.size.depth; Z++) {
-				for (Y = 0; Y < gworld.size.height; Y++) {
-					for (X = 0; X < gworld.size.width; X++) {
-						saveBlock(X, Y, Z);
-					}
+					// Save block
+					world.b.push({
+						t: block.type.substring(0, 2),
+						p: block.coords,
+						a: b.args
+					});
 				}
 			}
+		};
+		
+		for (Z = 0; Z < gworld.size.depth; Z++) {
+			for (Y = 0; Y < gworld.size.height; Y++) {
+				for (X = 0; X < gworld.size.width; X++) {
+					saveBlock(X, Y, Z);
+				}
+			}
+		}
 
-			return JSON.stringify(world);
-		};
-		
-		storage.restoreWorld = function(worldstring) {
-			var world = JSON.parse(worldstring).b;
-			
-			// TODO restore world size
-			gui.we.clearWorld();
-			for (i = 0, len = world.length; i < len; i++) {
-				// Upper case first char of type
-				typ = world[i].t[0].toUpperCase() + world[i].t.substr(1);
-				gui.we.addBlock(
-					undefined,
-					world[i].p,
-					blocks[typ],
-					world[i].a
-				);
-			}
-		};
-		
-		storage.getSavedWorlds = function() {
-			var wl = localStorage.getItem(cst.storage.worldList);
-			
-			if (typeof wl === 'undefined' || wl === null) {
-				return [];
-			} else {
-				return JSON.parse(wl);
-			}
-		};
-		
-		storage.saveWorld = function(name) {
-			var wlist = this.getSavedWorlds();
-			
-			// Save world
-			localStorage.setItem(this.getWorldString());
-				
-			// Add to world list
-			if (wlist.indexOf(name) === -1) {
-				wlist.push(name);
-				localStorage.setItem(cst.storage.worldList, JSON.stringify(wlist));
-			}
-		};
-		
-		storage.loadWorld = function(name) {
-			var wlist = this.getWorldList(),
-				world, i, len, typ;
-			
-			if (wlist.indexOf(name) === -1) {
-				return;
-			}
-			this.restoreWorld(localStorage.getItem(cst.storage.worldPrefix + name));
-		};
-		
-		return storage;
+		// Remove quotes
+		return JSON.stringify(world).replace(/"/g, '');
 	};
+	
+	storage.restoreWorld = function(gui, worldstring) {
+		var ws, world;
+		
+		// Restore quotes
+		ws = worldstring.replace(/([a-zA-Z_][a-zA-Z0-9_]*):/g, '"$1":').replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, ':"$1"');
+		world = JSON.parse(ws).b
+		
+		// TODO restore world size
+		gui.we.clearWorld();
+		for (i = 0, len = world.length; i < len; i++) {
+			gui.we.addBlock(
+				undefined,
+				world[i].p,
+				blocks.abbr[world[i].t],
+				world[i].a
+			);
+		}
+	};
+	
+	storage.getSavedWorlds = function() {
+		var wl = localStorage.getItem(cst.storage.worldList);
+		
+		if (typeof wl === 'undefined' || wl === null) {
+			return [];
+		} else {
+			return JSON.parse(wl);
+		}
+	};
+	
+	storage.saveWorld = function(gui, name) {
+		var wlist = this.getSavedWorlds();
+		
+		// Save world
+		localStorage.setItem(cst.storage.worldPrefix + name, this.getWorldString(gui));
+			
+		// Add to world list
+		if (wlist.indexOf(name) === -1) {
+			wlist.push(name);
+			localStorage.setItem(cst.storage.worldList, JSON.stringify(wlist));
+		}
+	};
+	
+	storage.loadWorld = function(gui, name) {
+		var wlist = this.getSavedWorlds(),
+			world, i, len, typ;
+		
+		if (wlist.indexOf(name) === -1) {
+			return;
+		}
+		this.restoreWorld(gui, localStorage.getItem(cst.storage.worldPrefix + name));
+	};
+	
+	return storage;
 });

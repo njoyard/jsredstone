@@ -19,10 +19,10 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 define(
 ['blocks',
 'gui/worldeditor',
-'util/storage',
+'gui/loadsave',
 'const',
 'lib/i18n!nls/lang'],
-function(blocks, WorldEditor, storage, cst, _) {
+function(blocks, WorldEditor, loadsave, cst, lang) {
 	var Gui;
 
 	/* Ctor */
@@ -30,19 +30,18 @@ function(blocks, WorldEditor, storage, cst, _) {
 		this.world = world;
 		this.world.gui = this;
 		this.we = new WorldEditor(this);
-		this.st = storage(this);
 	};
 
 	Gui.prototype.tools = {
-		newtool: { title: _.tools.clear },
-		loadtool: { ttle: _.tools.store },
-		shovel: { title: _.tools.erase, key: 'E' },
+		newtool: { title: lang.tools.clear },
+		loadtool: { ttle: lang.tools.store },
+		shovel: { title: lang.tools.erase, key: 'E' },
 		br: { br: '' },
-		solidtool: { title: _.tools.solid, placeClass: blocks.Solid, key: 'S' },
-		rstool: { title: _.tools.wire, placeClass: blocks.Wire, key: 'W' },
-		torchtool: { title: _.tools.torch, placeClass: blocks.Torch, key: 'T' },
-		reptool: { title: _.tools.repeater, placeClass: blocks.Repeater, key: 'R' },
-		buttontool: { title: _.tools.button, placeClass: blocks.Button, key: 'B' }
+		solidtool: { title: lang.tools.solid, placeClass: blocks.Solid, key: 'S' },
+		rstool: { title: lang.tools.wire, placeClass: blocks.Wire, key: 'W' },
+		torchtool: { title: lang.tools.torch, placeClass: blocks.Torch, key: 'T' },
+		reptool: { title: lang.tools.repeater, placeClass: blocks.Repeater, key: 'R' },
+		buttontool: { title: lang.tools.button, placeClass: blocks.Button, key: 'B' }
 	};
 	
 	Gui.prototype.keyPress = function(key) {
@@ -137,13 +136,7 @@ function(blocks, WorldEditor, storage, cst, _) {
 		tb.appendChild(lvl);
 		
 		swhandler = (function() {
-			var n = window.prompt("Nom de la sauvegarde");
-			
-			if (!n) {
-				return;
-			}
-			
-			this.st.saveWorld(n);
+			loadsave.showsave(this);
 		}).bind(this);
 		sw = document.createElement('span');
 		sw.innerHTML = "save";
@@ -151,13 +144,7 @@ function(blocks, WorldEditor, storage, cst, _) {
 		tb.appendChild(sw);
 		
 		lwhandler = (function() {
-			var n = window.prompt("Nom de la sauvegarde");
-			
-			if (!n) {
-				return;
-			}
-			
-			this.st.loadWorld(n);
+			loadsave.showload(this);
 		}).bind(this);
 		lw = document.createElement('span');
 		lw.innerHTML = "load";

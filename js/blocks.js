@@ -32,6 +32,15 @@ function (b, bt, e, r, s, t, w) {
 		Repeater: r,
 		Solid: s,
 		Torch: t,
-		Wire: w
+		Wire: w,
+		
+		abbr: {
+			bu: b,
+			em: e,
+			re: r,
+			so: s,
+			to: t,
+			wi: w
+		}
 	};
 });

@@ -27,6 +27,27 @@ define({
 			torch: "Redstone torch (T)",
 			repeater: "Redstone repeater (R)",
 			button: "Button (B)"
+		},
+		loadsave: {
+			load: {
+				title: "Load world",
+				subtitle1: "From browser Local Storage:",
+				lsbtn: "Load",
+				subtitle2: "or paste saved world code below:",
+				textbtn: "Load",
+				selectworld: "Please select a world to load"
+			},
+			save: {
+				title: "Save world",
+				lsbtn: "Save",
+				subtitle1: "To browser Local Storage:",
+				subtitle2: "or copy world code below:",
+				overwrite: "Overwrite saved world '%s' ?",
+				selectworld: "Please select a world name to save to"
+			},
+			close: "Close",
+			choose: "- Choose saved world -",
+			newsave: "- New saved world -"
 		}
 	},
 	'fr': true
