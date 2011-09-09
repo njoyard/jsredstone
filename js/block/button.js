@@ -122,7 +122,7 @@ function(Block, cst) {
 		this.remaining = cst.buttonTicks;
 		this.setCharge(cst.maxCharge);
 		
-		this.tickBinding = world.ticked.add(this.onTick.bind(this));
+		this.tickBinding = this.world.ticked.add(this.onTick.bind(this));
 	};
 		
 	ButtonBlock.prototype.onTick = function(tickcount) {
