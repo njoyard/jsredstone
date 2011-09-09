@@ -35,7 +35,7 @@ function (b, bt, e, r, s, t, w) {
 		Wire: w,
 		
 		abbr: {
-			bu: b,
+			bu: bt,
 			em: e,
 			re: r,
 			so: s,
