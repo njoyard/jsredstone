@@ -26,6 +26,28 @@ function(blocks) {
 	WorldEditor = function(gui) {
 		this.gui = gui;
 	};
+	
+	/* Change block count label
+		what: either a block or a block constructor
+		inc: 1 or -1
+	*/
+	WorldEditor.prototype.changeCount = function(what, inc) {
+		var cls = typeof what === 'function' ? what : what.constructor,
+			count;
+		
+		if (typeof cls.countLabel !== 'undefined') {
+			count = parseInt(cls.countLabel.innerText);
+			if (isNaN(count)) {
+				count = 0;
+			}
+			count += inc;
+			if (count > 0) {
+				cls.countLabel.innerText = count;
+			} else {
+				cls.countLabel.innerText = '';
+			}
+		}
+	};
 
 	/* Set current level editor to lvl */
 	WorldEditor.prototype.setLevel = function(lvl) {
@@ -250,6 +272,7 @@ function(blocks) {
 		// Dissociate old block
 		block = element.block;
 		block.onRemove();
+		this.changeCount(block, -1);
 		element.classList.remove('B_' + block.class);
 		element.block = undefined;
 		block.element = undefined;
@@ -277,6 +300,7 @@ function(blocks) {
 
 		// Create new block and associate with element
 		block = new cls(world, coords, args);
+		this.changeCount(cls, 1);
 		element.block = block;
 		block.element = element;
 		block.onElementCreated();
@@ -297,6 +321,7 @@ function(blocks) {
 					if (typeof block !== 'undefined' && block.type !== 'empty') {
 						// Dissociate old block
 						block = element.block;
+						this.changeCount(block, -1);
 						block.onRemove();
 						element.classList.remove('B_' + block.class);
 						element.block = undefined;

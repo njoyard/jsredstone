@@ -108,7 +108,7 @@ function(blocks, WorldEditor, loadsave, cst, lang) {
 
 	/* Render toolbar elements */
 	Gui.prototype.renderToolbar = function() {
-		var tb, tool, toolchange, t, tbg,
+		var tb, tool, toolchange, t, tdef, tbg, tlabel,
 			ntools = 0;
 		
 		// Create toolbar and corners
@@ -130,24 +130,33 @@ function(blocks, WorldEditor, loadsave, cst, lang) {
 		
 		for (t in this.tools) {
 			if (this.tools.hasOwnProperty(t)) {
-				tbg = document.createElement('div');
-				tbg.classList.add('toolbg');
-				
+				tdef = this.tools[t];
+			
 				tool = document.createElement('div');
-				tool.bg = tbg;
 				tool.id = t;
-				tool.title = this.tools[t].title;
+				tool.title = tdef.title;
 				tool.classList.add('tool');
 				tool.classList.add(t);
 				tool.addEventListener('click', function() { toolchange(this.id); });
 				
 				tool.style.top = '6px';
-				tbg.style.top = '8px';
-				
 				tool.style.left = (6 + 40*ntools) + 'px';
-				tbg.style.left = (8 + 40*ntools) + 'px';
 				
-				tb.appendChild(tbg);
+				if (typeof tdef.placeClass !== 'undefined') {
+					tbg = document.createElement('div');
+					tbg.classList.add('toolbg');
+					tbg.style.top = '8px';
+					tbg.style.left = (8 + 40*ntools) + 'px';
+					
+					tb.appendChild(tbg);
+					tool.bg = tbg;
+					
+					tlabel = document.createElement('span');
+					tlabel.classList.add('toollabel');
+					tool.appendChild(tlabel);
+					tdef.placeClass.countLabel = tlabel;
+				}
+				
 				tb.appendChild(tool);
 				ntools++;
 			}

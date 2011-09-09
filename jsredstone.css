@@ -71,6 +71,14 @@ body, textarea {
 	opacity: 0.5;
 }
 
+.toollabel {
+	color: white;
+	font-weight: bold;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+}
+
 .loadsave_bg {
 	position: absolute;
 	top: 0;
