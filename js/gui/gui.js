@@ -142,7 +142,7 @@ function(blocks, WorldEditor, loadsave, cst, lang) {
 				tool.style.top = '6px';
 				tool.style.left = (6 + 40*ntools) + 'px';
 				
-				if (typeof tdef.placeClass !== 'undefined') {
+				if (t === 'shovel' || typeof tdef.placeClass !== 'undefined') {
 					tbg = document.createElement('div');
 					tbg.classList.add('toolbg');
 					tbg.style.top = '8px';
@@ -150,7 +150,9 @@ function(blocks, WorldEditor, loadsave, cst, lang) {
 					
 					tb.appendChild(tbg);
 					tool.bg = tbg;
-					
+				}
+				
+				if (typeof tdef.placeClass !== 'undefined') {
 					tlabel = document.createElement('span');
 					tlabel.classList.add('toollabel');
 					tool.appendChild(tlabel);
