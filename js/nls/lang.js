@@ -36,7 +36,10 @@ define({
 				lsbtn: "Load",
 				subtitle2: "or paste saved world code below:",
 				textbtn: "Load",
-				selectworld: "Please select a world to load"
+				selectworld: "Please select a world to load",
+				rembtn: "Delete",
+				deleteworld: "Delete saved world '%s' ?",
+				selectdworld: "Please select a world to delete"
 			},
 			save: {
 				title: "Save world",

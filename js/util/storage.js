@@ -130,5 +130,16 @@ function(blocks, cst) {
 		this.restoreWorld(gui, localStorage.getItem(cst.storage.worldPrefix + name));
 	};
 	
+	storage.deleteWorld = function(name) {
+		var wlist = this.getSavedWorlds(),
+			idx = wlist.indexOf(name);
+		
+		if (idx !== -1) {
+			localStorage.removeItem(cst.storage.worldPrefix + name);
+			wlist.splice(idx, 1);
+			localStorage.setItem(cst.storage.worldList, JSON.stringify(wlist));
+		}
+	};
+	
 	return storage;
 });

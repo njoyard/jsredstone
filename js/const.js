@@ -28,8 +28,8 @@ function() {
 		buttonTicks: 9,
 		repeaterTicks: [1, 2, 3, 4],
 		storage: {
-			worldList: "rss.wl",
-			worldPrefix: "rss.world."
+			worldList: "jsr.wl",
+			worldPrefix: "jsr.world."
 		}
 	};
 });

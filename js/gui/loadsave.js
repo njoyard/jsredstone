@@ -21,7 +21,7 @@ define(
 'util/storage',
 'lib/sprintf'],
 function(lang, storage, sprintf) {
-	var elements, init, show, hide, lshandler, texthandler,
+	var elements, init, show, hide, lshandler, remhandler, texthandler,
 		state = {}, loadsave = {};
 	
 	init = function() {
@@ -63,6 +63,11 @@ function(lang, storage, sprintf) {
 		e.addEventListener('click', lshandler);
 		elements.lsbtn = e;
 		
+		e = boxcreate('input');
+		e.type = 'button';
+		e.addEventListener('click', remhandler);
+		elements.rembtn = e;
+		
 		/* Text part */
 		elements.subtitle2 = boxcreate('h2');
 		elements.textarea = boxcreate('textarea');
@@ -96,12 +101,16 @@ function(lang, storage, sprintf) {
 		elements.title.innerText = lang.loadsave[key].title;
 		elements.subtitle1.innerText = lang.loadsave[key].subtitle1;
 		elements.lsbtn.value = lang.loadsave[key].lsbtn;
+		elements.rembtn.value = lang.loadsave[key].rembtn;
 		elements.subtitle2.innerText = lang.loadsave[key].subtitle2;
 		elements.textbtn.value = lang.loadsave[key].textbtn;
 		elements.closebtn.value = lang.loadsave.close;
 		
 		// Display world name input only on save
 		elements.input.style.display = save ? '' : 'none';
+		
+		// Display delete button only on load
+		elements.rembtn.style.display = save ? 'none' : '';
 		
 		// Enable textarea only on load
 		elements.textarea.readOnly = save ? true : false;
@@ -137,6 +146,21 @@ function(lang, storage, sprintf) {
 		
 		elements.bg.style.display = 'block';
 		elements.box.style.display = 'block';
+	};
+	
+	remhandler = function() {
+		var wn = elements.select.value, opt;
+		if (wn !== '-') {
+			if (window.confirm(sprintf(lang.loadsave.load.deleteworld, wn))) {
+				storage.deleteWorld(wn);
+				opt = elements.select.querySelector('option[value="' + wn + '"]');
+				if (opt) {
+					elements.select.removeChild(opt);
+				}
+			}
+		} else {
+			window.alert(lang.loadsave.load.selectdworld);
+		}
 	};
 	
 	lshandler = function() {
