@@ -351,9 +351,9 @@ function(blocks) {
 				if (ceq(act.coords, coords)) {
 					wc = true;
 					this.addBlock(element, coords, act.class, act.args);
-				} else {
-					this.clickAction = undefined;
 				}
+				
+				this.clickAction.place = undefined;
 			}
 
 			act = this.clickAction.remove;
@@ -361,9 +361,9 @@ function(blocks) {
 				if (ceq(act.coords, coords)) {
 					wc = true;
 					this.removeBlock(element, coords);
-				} else {
-					this.clickAction = undefined;
 				}
+				
+				this.clickAction.remove = undefined;
 			}
 
 			if (wc) {
