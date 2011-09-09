@@ -30,6 +30,7 @@ function() {
 		storage: {
 			worldList: "jsr.wl",
 			worldPrefix: "jsr.world."
-		}
+		},
+		versionString: "JSRedstone 0.2"
 	};
 });

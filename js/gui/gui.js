@@ -172,11 +172,16 @@ function(blocks, WorldEditor, loadsave, cst, lang) {
 
 	/* Render viewport */
 	Gui.prototype.renderViewport = function() {
-		var vp = document.createElement('div');
+		var vp = document.createElement('div'),
+			version = document.createElement('span');
 
 		vp.id = 'viewport';
 		this.we.render(vp);
 		document.body.appendChild(vp);
+		
+		version.id = 'version';
+		version.innerText = cst.versionString;
+		document.body.appendChild(version);
 
 		this.we.setLevel(0);
 		this.setTool('solidtool');
