@@ -198,7 +198,7 @@ function(lang, storage, sprintf) {
 	};
 	
 	texthandler = function() {
-		var worldcode = elements.textarea.innerText;
+		var worldcode = elements.textarea.value;
 		
 		storage.restoreWorld(state.gui, worldcode);
 		hide();
