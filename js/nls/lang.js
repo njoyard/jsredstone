@@ -20,7 +20,8 @@ define({
 	root: {
 		tools: {
 			clear: "New world",
-			store: "Load/Save",
+			load: "Load World",
+			save: "Save World",
 			erase: "Erase tool (E)",
 			solid: "Solid block (S)",
 			wire: "Redstone wire (W)",
@@ -49,6 +50,6 @@ define({
 			choose: "- Choose saved world -",
 			newsave: "- New saved world -"
 		}
-	},
-	'fr': true
+	}/*,
+	'fr': true*/
 });

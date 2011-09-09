@@ -34,7 +34,8 @@ function(blocks, WorldEditor, loadsave, cst, lang) {
 
 	Gui.prototype.tools = {
 		newtool: { title: lang.tools.clear },
-		loadtool: { ttle: lang.tools.store },
+		loadtool: { title: lang.tools.load },
+		savetool: { title: lang.tools.save },
 		shovel: { title: lang.tools.erase, key: 'E' },
 		br: { br: '' },
 		solidtool: { title: lang.tools.solid, placeClass: blocks.Solid, key: 'S' },
@@ -62,6 +63,17 @@ function(blocks, WorldEditor, loadsave, cst, lang) {
 		var toolelem;
 
 		if (toolid === this.curTool) {
+			return;
+		}
+		
+		/* One-shot tools */
+		if (toolid === 'newtool') {
+			return;
+		} else if (toolid === 'loadtool') {
+			loadsave.showload(this);
+			return;
+		} else if (toolid === 'savetool') {
+			loadsave.showsave(this);
 			return;
 		}
 
@@ -97,7 +109,7 @@ function(blocks, WorldEditor, loadsave, cst, lang) {
 
 	/* Render toolbar elements */
 	Gui.prototype.renderToolbar = function() {
-		var tb, tool, toolchange, t, lvl, lvlchange, sw, swhandler, lw, lwhandler;
+		var tb, tool, toolchange, t, lvl, lvlchange;
 
 		tb = document.createElement('div');
 		tb.id = 'toolbar';
@@ -134,22 +146,6 @@ function(blocks, WorldEditor, loadsave, cst, lang) {
 
 		this.levelInput = lvl;
 		tb.appendChild(lvl);
-		
-		swhandler = (function() {
-			loadsave.showsave(this);
-		}).bind(this);
-		sw = document.createElement('span');
-		sw.innerHTML = "save";
-		sw.addEventListener('click', function() { swhandler(); });
-		tb.appendChild(sw);
-		
-		lwhandler = (function() {
-			loadsave.showload(this);
-		}).bind(this);
-		lw = document.createElement('span');
-		lw.innerHTML = "load";
-		lw.addEventListener('click', function() { lwhandler(); });
-		tb.appendChild(lw);
 
 		document.body.appendChild(tb);
 	};

@@ -157,7 +157,8 @@ body, textarea {
 .solidtool 		{ background-position: -320px -64px; }
 .buttontool		{ background-position: -192px -96px; }
 .newtool 		{ background-position: -224px -96px; }
-.loadtool 		{ background-position: -256px -96px; }
+.loadtool 		{ background-position: -320px -128px; }
+.savetool 		{ background-position: -256px -96px; }
 .selecttool		{ background-position: -288px -96px; }
 .probetool 		{ background-position: -320px -96px; }
 
