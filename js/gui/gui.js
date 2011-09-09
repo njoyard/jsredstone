@@ -37,7 +37,6 @@ function(blocks, WorldEditor, loadsave, cst, lang) {
 		loadtool: { title: lang.tools.load },
 		savetool: { title: lang.tools.save },
 		shovel: { title: lang.tools.erase, key: 'E' },
-		br: { br: '' },
 		solidtool: { title: lang.tools.solid, placeClass: blocks.Solid, key: 'S' },
 		rstool: { title: lang.tools.wire, placeClass: blocks.Wire, key: 'W' },
 		torchtool: { title: lang.tools.torch, placeClass: blocks.Torch, key: 'T' },
@@ -79,14 +78,14 @@ function(blocks, WorldEditor, loadsave, cst, lang) {
 
 		/* Deactivate previous tool */
 		toolelem = document.getElementById(this.curTool);
-		if (toolelem) {
-			toolelem.classList.remove('selected');
+		if (toolelem && toolelem.bg) {
+			toolelem.bg.classList.remove('selected');
 		}
 
 		/* Activate new tool */
 		toolelem = document.getElementById(toolid);
-		if (toolelem) {
-			toolelem.classList.add('selected');
+		if (toolelem && toolelem.bg) {
+			toolelem.bg.classList.add('selected');
 			this.curTool = toolid;
 		}
 	};
@@ -95,8 +94,8 @@ function(blocks, WorldEditor, loadsave, cst, lang) {
 	Gui.prototype.render = function() {
 		var keyhandler;
 		
-		this.renderToolbar();
 		this.renderViewport();
+		this.renderToolbar();
 		
 		keyhandler = (function(e) {
 			var key = String.fromCharCode(e.keyCode).toUpperCase();
@@ -109,49 +108,55 @@ function(blocks, WorldEditor, loadsave, cst, lang) {
 
 	/* Render toolbar elements */
 	Gui.prototype.renderToolbar = function() {
-		var tb, tool, toolchange, t, lvl, lvlchange;
-
+		var tb, tool, toolchange, t, tbg,
+			ntools = 0;
+		
+		// Create toolbar and corners
 		tb = document.createElement('div');
 		tb.id = 'toolbar';
-
+		
+		t = document.createElement('div');
+		t.id = 'toolbar_left';
+		tb.appendChild(t);
+		
+		t = document.createElement('div');
+		t.id = 'toolbar_right';
+		tb.appendChild(t);
+		
+		// Create tools
 		toolchange = (function(toolid) {
 			this.setTool(toolid);
 		}).bind(this);
-
+		
 		for (t in this.tools) {
 			if (this.tools.hasOwnProperty(t)) {
-				if (typeof this.tools[t].br !== 'undefined') {
-					tool = document.createElement('br');
-					tb.appendChild(tool);
-				} else {
-					tool = document.createElement('div');
-					tool.id = t;
-					tool.title = this.tools[t].title;
-					tool.classList.add('tool');
-					tool.classList.add(t);
-					tool.addEventListener('click', function() { toolchange(this.id); });
-					tb.appendChild(tool);
-				}
+				tbg = document.createElement('div');
+				tbg.classList.add('toolbg');
+				
+				tool = document.createElement('div');
+				tool.bg = tbg;
+				tool.id = t;
+				tool.title = this.tools[t].title;
+				tool.classList.add('tool');
+				tool.classList.add(t);
+				tool.addEventListener('click', function() { toolchange(this.id); });
+				
+				tool.style.top = '6px';
+				tbg.style.top = '8px';
+				
+				tool.style.left = (6 + 40*ntools) + 'px';
+				tbg.style.left = (8 + 40*ntools) + 'px';
+				
+				tb.appendChild(tbg);
+				tb.appendChild(tool);
+				ntools++;
 			}
 		}
-
-		lvl = document.createElement('input');
-		lvl.type = 'range';
-		lvl.min = 0; lvl.max = 7; lvl.step = 1; lvl.value = 0
-
-		lvlchange = (function(val) {
-			this.we.setLevel(val);
-		}).bind(this);
-		lvl.addEventListener('change', function() { lvlchange(this.value); });
-
-		this.levelInput = lvl;
-		tb.appendChild(lvl);
-
+		
+		tb.style.width = (4 + 40*ntools) + 'px';
+		tb.style.marginLeft = '-' + (2 + 20*ntools) + 'px';
+		
 		document.body.appendChild(tb);
-	};
-
-	Gui.prototype.setLevelInput = function(lvl) {
-		this.levelInput.value = lvl;
 	};
 
 	/* Render viewport */

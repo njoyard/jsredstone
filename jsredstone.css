@@ -24,33 +24,51 @@ body, textarea {
 }
 
 #toolbar {
-	width: 12em;
-
 	position: absolute;
-	top: 0;
-	left: 0;
+	height: 44px;
 	bottom: 0;
+	left: 50%;
+	background-image: url(img/tb_bg.png);
+	background-position: 2px 0;
+}
 
-	background-color: #ccccdd;
+#toolbar_left {
+	width: 38px;
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	background-image: url(img/tb_left.png);
+}
+
+#toolbar_right {
+	width: 16px;
+	position: absolute;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background-image: url(img/tb_right.png);
 }
 
 #viewport {
 	position: absolute;
 	top: 0;
-	left: 12em;
+	left: 0;
 	bottom: 0;
 	right: 0;
 
 	background: url(img/bg.png);
 }
 
-.tool {
-	display: inline-block;
-	border: 1px solid #ccccdd;
+.toolbg {
+	position: absolute;
+	height: 28px;
+	width: 28px;
 }
 
-.tool.selected {
-	border: 1px solid #880000;
+.toolbg.selected {
+	background-color: white;
+	opacity: 0.5;
 }
 
 .loadsave_bg {
@@ -123,7 +141,14 @@ body, textarea {
 }
 
 /* Sprites */
-.block, .vblock, .tool, .rs_ovl {
+.tool {
+	position: absolute;
+	background: url(img/textures.png) 0 0 no-repeat;
+	width: 32px;
+	height: 32px;
+}
+
+.block, .vblock, .rs_ovl {
 	position: relative;
 	display: inline-block;
 	background: url(img/textures.png) 0 0 no-repeat;

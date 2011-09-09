@@ -32,7 +32,6 @@ function(blocks) {
 		var i, len = this.levels.length;
 
 		lvl = Math.min(len - 1, Math.max(0, lvl));
-		this.gui.setLevelInput(lvl);
 		this.curLevel = lvl;
 		for (i = 0; i < len; i++) {
 			this.levels[i].style.visibility = (i <= lvl ? "visible" : "hidden");
