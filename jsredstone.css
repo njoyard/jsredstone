@@ -106,7 +106,10 @@ body, textarea {
 }
 
 .vpitem {
-	/* Empty placeholder */
+	/* Generic class for viewport items
+		margin-top|left are used to pan the viewport */
+	margin-top: 0;
+	margin-left: 0;
 }
 
 .level {
@@ -116,7 +119,19 @@ body, textarea {
 	bottom: 0;
 	right: 0;
 	overflow: hidden;
+	display: none;
 }
+
+.level + .level {
+	/* Add transparent background to all levels except the first one */
+	background-color: rgba(100%, 100%, 100%, 0.1);
+}
+
+.level.active, .level.below {
+	/* Active level and levels below are displayed */
+	display: block;
+}
+
 
 .vblock {
 	opacity: 0.75;

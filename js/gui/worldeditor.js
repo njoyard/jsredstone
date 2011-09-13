@@ -68,7 +68,7 @@ function(cst) {
 		};
 		
 		/* Move viewport content to (offsetX, offsetY) */
-		moveViewport = function(offsetX, offsetY) {
+		moveViewport = function(offsetX, offsetY, relative) {
 			var dss, rules, i, j;
 			
 			if (typeof state.vpcRule === 'undefined') {
@@ -86,6 +86,11 @@ function(cst) {
 						}
 					}
 				}
+			}
+			
+			if (relative) {
+				offsetX += state.left;
+				offsetY += state.top;
 			}
 			
 			state.left = offsetX;
@@ -126,9 +131,6 @@ function(cst) {
 			mousewheel = (function(e) { return this.scrollWheel(e); }).bind(this);
 			viewport.addEventListener('DOMMouseScroll', function(e) { mousewheel(e); });
 			viewport.addEventListener('mousewheel', function(e) { mousewheel(e); });
-			
-			// Set default panning position
-			moveViewport(100, 200);
 		};
 	
 		worldEditor.mouseMove = function(e) {
