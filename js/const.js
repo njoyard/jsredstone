@@ -19,6 +19,11 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 define([],
 function() {
 	return {
+		// World
+		maxHeight: 8,
+		blockSize: 32,
+	
+		// Redstone current
 		maxCharge: 15,
 		tickTime: 100,
 		torchBurnout: {
@@ -27,10 +32,14 @@ function() {
 		},
 		buttonTicks: 9,
 		repeaterTicks: [1, 2, 3, 4],
+		
+		// Storage
 		storage: {
 			worldList: "jsr.wl",
 			worldPrefix: "jsr.world."
 		},
+		
+		// Misc
 		versionString: "JSRedstone 0.2"
 	};
 });

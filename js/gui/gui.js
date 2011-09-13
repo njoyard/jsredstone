@@ -22,14 +22,14 @@ define(
 'gui/loadsave',
 'const',
 'lib/i18n!nls/lang'],
-function(blocks, WorldEditor, loadsave, cst, lang) {
+function(blocks, worldeditor, loadsave, cst, lang) {
 	var Gui;
 
 	/* Ctor */
 	Gui = function (world) {
 		this.world = world;
 		this.world.gui = this;
-		this.we = new WorldEditor(this);
+		this.we = worldeditor(this);
 	};
 
 	Gui.prototype.tools = {

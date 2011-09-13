@@ -16,12 +16,28 @@ You should have received a copy of the GNU General Public License
 along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* UI */
+
+/******************************* UI *******************************/
+
+/* General */
 
 body, textarea {
 	font-family: "Trebuchet MS", Helvetica, sans-serif;
 	font-size: 10pt;
 }
+
+#version {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	color: white;
+	font-weight: bold;
+	font-size: 0.8em;
+	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+	z-index: 99999;
+}
+
+/* Toolbar */
 
 #toolbar {
 	position: absolute;
@@ -50,25 +66,11 @@ body, textarea {
 	background-image: url(img/tb_right.png);
 }
 
-#viewport {
+.tool {
 	position: absolute;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
-
-	background: url(img/bg.png);
-}
-
-#version {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	color: white;
-	font-weight: bold;
-	font-size: 0.8em;
-	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-	z-index: 100;
+	background: url(img/textures.png) 0 0 no-repeat;
+	width: 32px;
+	height: 32px;
 }
 
 .toolbg {
@@ -90,6 +92,41 @@ body, textarea {
 	bottom: 0;
 	right: 0;
 }
+
+/* Viewport */
+
+#viewport {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	overflow: hidden;
+	background: url(img/bg.png);
+}
+
+.vpitem {
+	/* Empty placeholder */
+}
+
+.level {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	overflow: hidden;
+}
+
+.vblock {
+	opacity: 0.75;
+}
+
+
+.vblock.place {
+	background-position: -160px -96px;
+}
+/* Dialogs */
 
 .loadsave_bg {
 	position: absolute;
@@ -139,38 +176,8 @@ body, textarea {
 	height: 100px;
 }
 
-/* Levels */
 
-.level {
-	position: absolute;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
-}
-
-.levelbg {
-	position: absolute;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
-
-	background-color: white;
-	opacity: 0.5;
-}
-
-.levelrow {
-	position: absolute;
-}
-
-/* Sprites */
-.tool {
-	position: absolute;
-	background: url(img/textures.png) 0 0 no-repeat;
-	width: 32px;
-	height: 32px;
-}
+/* Blocks */
 
 .block, .vblock, .rs_ovl {
 	position: relative;
@@ -178,10 +185,6 @@ body, textarea {
 	background: url(img/textures.png) 0 0 no-repeat;
 	width: 32px;
 	height: 32px;
-}
-
-.vblock {
-	opacity: 0.75;
 }
 
 .rs_ovl {
@@ -199,6 +202,9 @@ body, textarea {
 	background-color: #FFFF88;
 }
 
+/******************************* Sprites *******************************/
+
+/* Tools */
 .torchtool		{ background-position: -192px -64px; }
 .rstool 		{ background-position: -224px -64px; }
 .reptool 		{ background-position: -256px -64px; }
@@ -211,6 +217,7 @@ body, textarea {
 .selecttool		{ background-position: -288px -96px; }
 .probetool 		{ background-position: -320px -96px; }
 
+/* Redstone wire */
 .B_rson_ew		{ background-position: 0 0; }
 .B_rson_ns		{ background-position: -32px 0; }
 .B_rson_nsew	{ background-position: -64px 0; }
@@ -235,6 +242,7 @@ body, textarea {
 .B_rsoff_sw		{ background-position: -288px -32px; }
 .B_rsoff_nw		{ background-position: -320px -32px; }
 
+/* Redstone torch */
 .B_torchon_c	{ background-position: 0 -64px; }
 .B_torchon_s	{ background-position: -32px -64px; }
 .B_torchon_n	{ background-position: -64px -64px; }
@@ -247,6 +255,7 @@ body, textarea {
 .B_torchoff_w	{ background-position: -96px -96px; }
 .B_torchoff_e	{ background-position: -128px -96px; }
 
+/* Repeater */
 .B_rep1off_n	{ background-position: 0 -128px; }
 .B_rep2off_n	{ background-position: -32px -128px; }
 .B_rep3off_n	{ background-position: -64px -128px; }
@@ -283,6 +292,7 @@ body, textarea {
 .B_rep3on_w		{ background-position: -224px -160px; }
 .B_rep4on_w		{ background-position: -224px -128px; }
 
+/* Button */
 .B_butoff_n		{ background-position: -256px -128px; }
 .B_butoff_s		{ background-position: -256px -192px; }
 .B_butoff_e		{ background-position: -256px -160px; }
@@ -293,8 +303,8 @@ body, textarea {
 .B_buton_e		{ background-position: -288px -160px; }
 .B_buton_w		{ background-position: -288px -224px; }
 
+/* Misc */
 .B_solid		{ background-position: -160px -64px; }
-.B_empty		{ background-position: -160px -96px; }
 .B_remove		{
 	background-position: -1024px -1024px;
 	background-color: red;
