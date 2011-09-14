@@ -73,7 +73,7 @@ if (typeof JSR === 'undefined') {
 	})();
 }
 
-define(['gui/gui', 'world'],
+define(['gui/gui', 'world/world'],
 function (Gui, World) {
 	require.ready(function () {
 		var world = new World({height: 16, width: 16, depth: 8}),
