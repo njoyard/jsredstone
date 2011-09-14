@@ -26,25 +26,25 @@ function(Block, cst) {
 		Return an object with n, s, e, w as keys. Each key is present only when there is a connection at this cardinal point.
 		Each value is either 'u', '' or 'd' depending on whether the connected block is above, at the same level or below.
 	*/
-	getConnections = function(world, coords) {
+	getConnections = function(nbhood) {
 		var out = {}, cnt = 0, only = '',
 			i, j, dir, b1, b2;
 
 		for (i = 0; i < 4; i++) {
 			dir = dirs[i];
 
-			/* Redstone upwards and no block above ? */
-			b1 = world.get(nb.add(coords, nb['u' + dir]));
-			b2 = world.get(nb.add(coords, nb.u));
-			if ((typeof b1 !== 'undefined' && b1.type === 'wire') && (typeof b2 === 'undefined' || b2.type === 'empty')) {
+			/* Wire upwards and no block above ? */
+			b1 = nbhood['u' + dir]
+			b2 = nbhood['u'];
+			if ((typeof b1 !== 'undefined' && b1.type === 'wire') && typeof b2 === 'undefined') {
 				out[dir] = 'u';
 				cnt++;
 				only = dir;
 				continue;
 			}
 
-			/* Redstone, torch or button at the same level */
-			b1 = world.get(nb.add(coords, nb[dir]));
+			/* Wire, torch or button at the same level */
+			b1 = nbhood[dir];
 			if (typeof b1 !== 'undefined' && (b1.type === 'wire' || b1.type === 'torch' || b1.type === 'button')) {
 				out[dir] = '';
 				cnt++;
@@ -52,11 +52,11 @@ function(Block, cst) {
 				continue;
 			}
 
-			/* Redstone or torch downwards and no block at the same level */
-			b1 = world.get(nb.add(coords, nb['d' + dir]));
-			b2 = world.get(nb.add(coords, nb[dir]));
+			/* Wire or torch downwards and no block above it */
+			b1 = nbhood['d'] + dir;
+			b2 = nbhood[dir];
 			if ((typeof b1 !== 'undefined' && (b1.type === 'wire' || b1.type === 'torch')) &&
-				(typeof b2 === 'undefined' || b2.type === 'empty')) {
+				(typeof b2 === 'undefined')) {
 				out[dir] = 'd';
 				cnt++;
 				only = dir;
@@ -131,12 +131,13 @@ function(Block, cst) {
 
 	WireBlock.type = 'wire';
 
-	WireBlock.tryPlace = function(world, coords, mouse) {
-		var block = world.get(nb.add(coords, nb.d));
-
-		if (coords.z === 0 || (typeof block !== 'undefined' && block.type === 'solid')) {
+	WireBlock.tryPlace = function(nbhood, mouse) {
+		var block = nbhood.d;
+		
+		// Try placement only when block below is solid
+		if (nbhood.coords.z === 0 || (typeof block !== 'undefined' && block.type === 'solid')) {
 			return {
-				css: "rson_" + classFromConnections(getConnections(world, coords)),
+				css: "rson_" + classFromConnections(getConnections(nbhood)),
 				args: []
 			};
 		}
@@ -286,6 +287,7 @@ function(Block, cst) {
 			dep: nb.d
 		};
 	};
+
 
 	return WireBlock;
 });

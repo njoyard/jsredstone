@@ -38,7 +38,7 @@ function(Block, cst) {
 	ButtonBlock.inherit(Block);
 	ButtonBlock.type = 'button';
 	
-	ButtonBlock.tryPlace = function(world, coords, mouse) {
+	ButtonBlock.tryPlace = function(nbhood, mouse) {
 		var dir, block;
 
 		if (mouse.indexOf('n') !== -1) {
@@ -52,7 +52,7 @@ function(Block, cst) {
 		}
 
 		if (typeof dir !== 'undefined') {
-			block = world.get(nb.add(coords, nb[dir]));
+			block = nbhood[dir];
 			if (typeof block !== 'undefined' && block.type === 'solid') {
 				return { css: 'butoff_'+ dir, args: { dir: dir } };
 			}

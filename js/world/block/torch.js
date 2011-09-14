@@ -52,7 +52,7 @@ function (Block, cst) {
 
 	TorchBlock.type = 'torch';
 
-	TorchBlock.tryPlace = function(world, coords, mouse) {
+	TorchBlock.tryPlace = function(nbhood, mouse) {
 		var dir, block, retval;
 
 		if (mouse.indexOf('n') !== -1) {
@@ -66,14 +66,14 @@ function (Block, cst) {
 		}
 
 		if (typeof dir !== 'undefined') {
-			block = world.get(nb.add(coords, nb[dir]));
+			block = nbhood[dir];
 			if (typeof block !== 'undefined' && block.type === 'solid') {
 				return { css: 'torchon_'+ dir, args: { dir: dir } };
 			}
 		}
 
-		block = world.get(nb.add(coords, nb.d));
-		if (coords.z === 0 || (typeof block !== 'undefined' && block.type === 'solid')) {
+		block = nbhood.d;
+		if (nbhood.coords.z === 0 || (typeof block !== 'undefined' && block.type === 'solid')) {
 			return { css: 'torchon_c', args: { dir: 'c' } };
 		}
 	};

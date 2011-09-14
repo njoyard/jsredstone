@@ -77,7 +77,7 @@ function (Neighbours, signals) {
 	/* Search for neighbour blocks and return them in a { key: block } object */
 	World.prototype.findNeighbours = function(coords) {
 		var x, y, z, bz, by, block, key,
-			neighbours = {};
+			neighbours = {coords: coords};
 		
 		for (z = -1; z <= 1; z++) {
 			bz = this.blocks[z];

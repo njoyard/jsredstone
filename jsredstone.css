@@ -112,6 +112,26 @@ body, textarea {
 	background: url(img/bg.png);
 }
 
+#xaxis {
+	height: 1px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	background-color: black;
+	opacity: 0.5;
+}
+
+#yaxis {
+	width: 1px;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	background-color: black;
+	opacity: 0.5;
+}
+
 .vpitem {
 	/* Generic class for viewport items
 		margin-top|left are used to pan the viewport */

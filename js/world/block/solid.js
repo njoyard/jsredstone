@@ -34,7 +34,7 @@ function(Block) {
 
 	SolidBlock.prototype.type = 'solid';
 
-	SolidBlock.tryPlace = function(world, coords, mouse) {
+	SolidBlock.tryPlace = function(nbhood, mouse) {
 		/* Solid block can be placed anywhere */
 		return { css: 'solid', args: {} };
 	};

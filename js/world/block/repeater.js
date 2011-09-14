@@ -36,13 +36,13 @@ function (Block, cst) {
 
 	RepeaterBlock.type = 'repeater';
 
-	RepeaterBlock.tryPlace = function(world, coords, mouse) {
-		var dir, block, retval;
+	RepeaterBlock.tryPlace = function(neighbours, mouse) {
+		var coords = neighbours.coords,
+			dir, block, retval;
 
 		/* Block underneath must be solid */
 		if (coords.z !== 0) {
-			block = world.get(nb.add(coords, nb.d));
-			if (block.type !== 'solid') {
+			if (typeof neighbours.d === 'undefined' || neighbours.d.type !== 'solid') {
 				return;
 			}
 		}

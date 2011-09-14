@@ -95,9 +95,13 @@ function(cst) {
 			
 			state.left = offsetX;
 			state.vpcRule.style.marginLeft = offsetX + 'px';
+			elements.viewport.style.backgroundPositionX = offsetX + 'px';
+			elements.yaxis.style.marginLeft = offsetX + 'px';
 			
 			state.top = offsetY;
 			state.vpcRule.style.marginTop = offsetY + 'px';
+			elements.viewport.style.backgroundPositionY = offsetY + 'px';
+			elements.xaxis.style.marginTop = offsetY + 'px';
 		};
 	
 		/* Render world editor into viewport */
@@ -117,7 +121,17 @@ function(cst) {
 				viewport.appendChild(e);
 			}
 			
-			// VBlock
+			// Axes
+			e = document.createElement('div');
+			e.id = 'xaxis';
+			viewport.appendChild(e);
+			elements.xaxis = e;
+			e = document.createElement('div');
+			e.id = 'yaxis';
+			viewport.appendChild(e);
+			elements.yaxis = e;
+			
+			// Virtual Block (shows block that can be placed at cursor position */
 			e = document.createElement('div');
 			e.classList.add('vblock');
 			e.classList.add('vpitem');
@@ -128,35 +142,91 @@ function(cst) {
 			viewport.addEventListener('mousemove', function(e) { mousemove(e); });
 			
 			// Set mousewheel events
-			mousewheel = (function(e) { return this.scrollWheel(e); }).bind(this);
+			mousewheel = (function(e) {
+				var delta = e.detail ? e.detail * -1 : e.wheelDelta / 40;
+				if (delta > 0) {
+					this.setLevel(state.level + 1);
+				}
+				if (delta < 0) {
+					this.setLevel(state.level - 1);
+				}
+			}).bind(this);
 			viewport.addEventListener('DOMMouseScroll', function(e) { mousewheel(e); });
 			viewport.addEventListener('mousewheel', function(e) { mousewheel(e); });
+			
+			
+			moveViewport(150, 70);
 		};
 	
 		worldEditor.mouseMove = function(e) {
-			var bx, by, ox, oy,
-				bs = cst.blockSize,
-				ex = e.clientX - state.left,
-				ey = e.clientY - state.top;
-				
-			bx = Math.floor(ex / bs);
-			ox = ex - bx * bs;
-			by = Math.floor(ey / bs);
-			oy = ey - by * bs;
+			var bs, ex, ey, bx, by, ox, oy,
+				tool = gui.tools[gui.curTool],
+				coords, block, nbhood, mouse, ret;
+	
+			if (typeof tool === 'undefined') {
+				state.clickAction = undefined;
+				return;
+			}
 			
-			this.setVBlock(bx, by, 'place');
+			bs = cst.blockSize;
+			ex = e.clientX - state.left;
+			ey = e.clientY - state.top;
+			bx = Math.floor(ex / bs);
+			by = Math.floor(ey / bs);
+			ox = ex - bx * bs;
+			oy = ey - by * bs;
+				
+			// Set status text to block coordinates
+			gui.status.innerText = '(' + bx + ', ' + by + ', ' + state.level + ')';
+			
+			if (typeof tool.placeClass !== 'undefined') {
+				// block place tool
+	
+				coords = {x: bx, y: by, z: state.level};
+				block = gui.world.get(coords);
+				if (typeof block === 'undefined') {
+					mouse = getMouseZones(bx, by, ox, oy);
+					
+					if (typeof mouse !== 'undefined') {
+						nbhood = gui.world.findNeighbours(coords);
+						ret = tool.placeClass.tryPlace(nbhood, mouse);
+	
+						if (typeof ret !== 'undefined' && typeof ret.css !== 'undefined') {
+							this.setVBlock(bx, by, 'B_' + ret.css);
+							state.clickAction = {
+								place: {
+									coords: coords,
+									class: tool.placeClass,
+									css: ret.css,
+									args: ret.args
+								}
+							};
+						} else {
+							this.removeVBlock();
+							state.clickAction = undefined;
+						}
+					}
+				} else {
+					state.mouseHash = undefined;
+					this.removeVBlock();
+					state.clickAction = undefined;
+				}
+			} else if (this.gui.curTool === 'shovel') {
+				if (type === 'empty') {
+					this.removeVBlock();
+					state.clickAction = undefined;
+				} else {
+					this.setVBlock(bx, by, 'remove');
+					state.clickAction = {
+						remove: {
+							coords: coords
+						}
+					};
+				}
+			}
 		};
 		
-		worldEditor.scrollWheel = function(e) {
-			var delta = e.detail ? e.detail * -1 : e.wheelDelta / 40;
-			if (delta > 0) {
-				this.setLevel(state.level + 1);
-			}
-			if (delta < 0) {
-				this.setLevel(state.level - 1);
-			}
-		};
-		
+		/* Place virtual block at coordinates (x, y) with CSS class className */
 		worldEditor.setVBlock = function(x, y, className) {
 			var vb = elements.vblock,
 				bs = cst.blockSize;
@@ -175,6 +245,15 @@ function(cst) {
 			
 			vb.style.top = (bs * y) + 'px';
 			vb.style.left = (bs * x) + 'px';
+		};
+		
+		/* Remove virtual block */
+		worldEditor.removeVBlock = function() {
+			var vb = elements.vblock;
+			
+			if (vb.parentNode !== null) {
+				vb.parentNode.removeChild(vb);
+			}
 		};
 		
 		/* Set current editing level */
