@@ -182,6 +182,10 @@ function(blocks, worldeditor, loadsave, cst, lang) {
 		version.id = 'version';
 		version.innerText = cst.versionString;
 		document.body.appendChild(version);
+		
+		this.status = document.createElement('span')
+		this.status.id = 'status';
+		document.body.appendChild(this.status);
 
 		this.we.setLevel(0);
 		this.setTool('solidtool');
