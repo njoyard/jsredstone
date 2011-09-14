@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-define(['world/neighbours', 'lib/signals'],
-function (Neighbours, signals) {
+define(['world/neighborhood', 'lib/signals'],
+function (Neighborhood, signals) {
 	var Block;
 
 	Block = function (world, coords) {
@@ -25,7 +25,7 @@ function (Neighbours, signals) {
 		this.world = world;
 		
 		/* Neighbours helper */
-		this.neighbours = new Neighbours(this);
+		this.nbhood = new Neighborhood(this);
 		
 		/* Dispatched when the block is removed from the world */
 		this.removed = new signals.Signal();

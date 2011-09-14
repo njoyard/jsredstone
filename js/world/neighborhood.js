@@ -18,9 +18,9 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 
 define(['lib/signals'],
 function(signals) {
-	var Neighbours, lk, nk;
+	var Neighborhood, lk, nk;
 	
-	Neighbours = function(block) {
+	Neighborhood = function(block) {
 		var keys = this.NEIGHBOUR_KEYS,
 			len = keys.length,
 			i;
@@ -36,7 +36,7 @@ function(signals) {
 	}
 
 	/* LEVEL_KEYS: keys for neighbours at the same level */
-	Neighbours.prototype.LEVEL_KEYS = Neighbours.LEVEL_KEYS = lk = [
+	Neighborhood.prototype.LEVEL_KEYS = Neighborhood.LEVEL_KEYS = lk = [
 		'n', 's', 'e', 'w', 'ne', 'se', 'nw', 'sw',
 	];
 	
@@ -44,10 +44,10 @@ function(signals) {
 	nk = lk.map(function(x) { return x; }).concat(['u']).
 		concat(lk.map(function(x) { return 'u' + x; })).
 		concat(['d']).concat(lk.map(function(x) { return 'd' + x; }));
-	Neighbours.prototype.NEIGHBOUR_KEYS = Neighbours.NEIGHBOUR_KEYS = nk;
+	Neighborhood.prototype.NEIGHBOUR_KEYS = Neighborhood.NEIGHBOUR_KEYS = nk;
 	
 	/* Transform coordinates into neighbour key */
-	Neighbours.prototype.keyFromCoords = Neighbours.keyFromCoords = function(coords) {
+	Neighborhood.prototype.keyFromCoords = Neighborhood.keyFromCoords = function(coords) {
 		var ret = '';
 		
 		if (coords.z === -1) {
@@ -72,7 +72,7 @@ function(signals) {
 	};
 	
 	/* Transform neighbour key into coordinates */
-	Neighbours.prototype.coordsFromKey = Neighbours.coordsFromKey = function(key) {
+	Neighborhood.prototype.coordsFromKey = Neighborhood.coordsFromKey = function(key) {
 		var ret = { x: 0, y: 0, z: 0 };
 		
 		if (key.indexOf('d') !== -1) {
@@ -97,7 +97,7 @@ function(signals) {
 	};
 	
 	/* Reverse neighbour key or coordinates */
-	Neighbours.prototype.reverse = function(o) {
+	Neighborhood.prototype.reverse = function(o) {
 		var ob;
 		
 		if (typeof o === 'string') {
@@ -109,7 +109,7 @@ function(signals) {
 	};
 	
 	/* Add a neighbour */
-	Neighbours.prototype.add = function(key, block) {
+	Neighborhood.prototype.add = function(key, block) {
 		if (this[key] !== null) {
 			throw "Cannot redefine neighbour";
 		}
@@ -119,7 +119,7 @@ function(signals) {
 	}
 	
 	/* Remove a neighbour */
-	Neighbours.prototype.remove = function(key) {
+	Neighborhood.prototype.remove = function(key) {
 		if (this[key] === null) {
 			throw "Cannot remove undefined neighbour";
 		}
@@ -129,7 +129,7 @@ function(signals) {
 	}
 	
 	/* Associate neighbour blocks */
-	Neighbours.prototype.bindAll = function(blocks) {
+	Neighborhood.prototype.bindAll = function(blocks) {
 		var block, key, rkey;
 		
 		for (key in blocks) {
@@ -138,13 +138,13 @@ function(signals) {
 				rkey = this.reverse(key);
 				
 				this.add(key, block);
-				block.neighbours.add(rkey, this.block);
+				block.nbhood.add(rkey, this.block);
 			}
 		}
 	};
 	
 	/* Unbind all neighbours (to be called on block removal) */
-	Neighbours.prototype.unbindAll = function() {
+	Neighborhood.prototype.unbindAll = function() {
 		var keys = this.NEIGHBOUR_KEYS,
 			len = keys.length,
 			i, rkey;
@@ -153,10 +153,10 @@ function(signals) {
 			if (this[keys[i]] !== null) {
 				this.remove(keys[i]);
 				rkey = this.reverse(keys[i]);
-				this[keys[i]].neighbours.remove(rkey);
+				this[keys[i]].nbhood.remove(rkey);
 			}
 		}
 	};
 	
-	return Neighbours;
+	return Neighborhood;
 });
