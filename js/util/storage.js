@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-define(["blocks", "const"],
+define(["world/blocks", "util/const"],
 function(blocks, cst) {
 	var storage = {};
 	

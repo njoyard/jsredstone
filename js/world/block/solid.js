@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-define(['block/block'],
+define(['world/block/block'],
 function(Block) {
 	var SolidBlock,
 		nb = Block.NB;

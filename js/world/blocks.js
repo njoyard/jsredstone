@@ -17,11 +17,11 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 define(
-['block/button',
-'block/repeater',
-'block/solid',
-'block/torch',
-'block/wire'],
+['world/block/button',
+'world/block/repeater',
+'world/block/solid',
+'world/block/torch',
+'world/block/wire'],
 function (bt, r, s, t, w) {
 	return {
 		Button: bt,

@@ -17,10 +17,10 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 define(
-['blocks',
+['world/blocks',
 'gui/worldeditor',
 'gui/loadsave',
-'const',
+'util/const',
 'lib/i18n!nls/lang'],
 function(blocks, worldeditor, loadsave, cst, lang) {
 	var Gui;
