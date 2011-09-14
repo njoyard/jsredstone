@@ -23,7 +23,22 @@ function (Neighbours, signals) {
 	World = function () {
 		this.blocks = {};
 		this.tickCount = 0;
+		this.edited = false;
+		
 		this.ticked = new signals.Signal();
+	};
+	
+	/* World block getter */
+	World.prototype.get = function(coords, block) {
+		if (typeof this.blocks[coords.z] === 'undefined') {
+			return undefined;
+		}
+		
+		if (typeof this.blocks[coords.z][coords.y] === 'undefined') {
+			return undefined;
+		}
+		
+		return this.blocks[coords.z][coords.y][coords.x]
 	};
 	
 	/* World block setter */
@@ -38,6 +53,8 @@ function (Neighbours, signals) {
 		
 		this.blocks[coords.z][coords.y][coords.x] = block;
 		block.neighbours.bindAll(this.findNeighbours(coords));
+		
+		this.edited = true;
 	};
 	
 	/* World block unsetter */
@@ -53,6 +70,8 @@ function (Neighbours, signals) {
 		block = this.blocks[coords.z][coords.y][coords.x];
 		delete this.blocks[coords.z][coords.y][coords.x];
 		block.neighbours.unbindAll();
+		
+		this.edited = true;
 	};
 	
 	/* Search for neighbour blocks and return them in a { key: block } object */
