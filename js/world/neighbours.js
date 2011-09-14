@@ -36,7 +36,7 @@ function(signals) {
 	}
 
 	/* LEVEL_KEYS: keys for neighbours at the same level */
-	Neighbours.prototype.LEVEL_KEYS = lk = [
+	Neighbours.prototype.LEVEL_KEYS = Neighbours.LEVEL_KEYS = lk = [
 		'n', 's', 'e', 'w', 'ne', 'se', 'nw', 'sw',
 	];
 	
@@ -44,10 +44,10 @@ function(signals) {
 	nk = lk.map(function(x) { return x; }).concat(['u']).
 		concat(lk.map(function(x) { return 'u' + x; })).
 		concat(['d']).concat(lk.map(function(x) { return 'd' + x; }));
-	Neighbours.prototype.NEIGHBOUR_KEYS = nk;
+	Neighbours.prototype.NEIGHBOUR_KEYS = Neighbours.NEIGHBOUR_KEYS = nk;
 	
 	/* Transform coordinates into neighbour key */
-	Neighbours.prototype.keyFromCoords = function(coords) {
+	Neighbours.prototype.keyFromCoords = Neighbours.keyFromCoords = function(coords) {
 		var ret = '';
 		
 		if (coords.z === -1) {
@@ -72,7 +72,7 @@ function(signals) {
 	};
 	
 	/* Transform neighbour key into coordinates */
-	Neighbours.prototype.coordsFromKey = function(key) {
+	Neighbours.prototype.coordsFromKey = Neighbours.coordsFromKey = function(key) {
 		var ret = { x: 0, y: 0, z: 0 };
 		
 		if (key.indexOf('d') !== -1) {
@@ -128,34 +128,17 @@ function(signals) {
 		this.removed.dispatch(key);
 	}
 	
-	/* Search for neighbours in worldblocks and associate them */
-	Neighbours.prototype.bindAll = function(worldblocks) {
-		var x, y, z, wbz, wby, block, key, rkey;
+	/* Associate neighbour blocks */
+	Neighbours.prototype.bindAll = function(blocks) {
+		var block, key, rkey;
 		
-		for (z = -1; z <= 1; z++) {
-			wbz = worldblocks[z];
-		 	if (typeof wbz === 'undefined') {
-		 		continue;
-		 	}
-		 	
-			for (y = -1; y <= 1; y++) {
-				wby = wbz[y];
-				if (typeof wby === 'undefined') {
-					continue;
-				}
+		for (key in blocks) {
+			if (blocks.hasOwnProperty(key)) {
+				block = blocks[key];
+				rkey = this.reverse(key);
 				
-				for (x = -1; x <= 1; x++) {
-					block = wby[x];
-					if (typeof block !== 'undefined' && key !== '') {					
-						key = this.keyFromCoords({ x:x, y:y, z:z });
-						if (key !== '') {
-							rkey = this.reverse(key);
-							
-							this.add(key, block);
-							block.neighbours.add(rkey, this.block);
-						}
-					}
-				}
+				this.add(key, block);
+				block.neighbours.add(rkey, this.block);
 			}
 		}
 	};

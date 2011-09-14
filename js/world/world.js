@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-define(['lib/signals'],
-function (signals) {
+define(['world/neighbours', 'lib/signals'],
+function (Neighbours, signals) {
 	var World;
 
 	World = function () {
@@ -37,7 +37,7 @@ function (signals) {
 		}
 		
 		this.blocks[coords.z][coords.y][coords.x] = block;
-		block.neighbours.bindAll(this.blocks);
+		block.neighbours.bindAll(this.findNeighbours(coords));
 	};
 	
 	/* World block unsetter */
@@ -53,6 +53,38 @@ function (signals) {
 		block = this.blocks[coords.z][coords.y][coords.x];
 		delete this.blocks[coords.z][coords.y][coords.x];
 		block.neighbours.unbindAll();
+	};
+	
+	/* Search for neighbour blocks and return them in a { key: block } object */
+	World.prototype.findNeighbours = function(coords) {
+		var x, y, z, bz, by, block, key,
+			neighbours = {};
+		
+		for (z = -1; z <= 1; z++) {
+			bz = this.blocks[z];
+		 	if (typeof bz === 'undefined') {
+		 		continue;
+		 	}
+		 	
+			for (y = -1; y <= 1; y++) {
+				by = bz[y];
+				if (typeof by === 'undefined') {
+					continue;
+				}
+				
+				for (x = -1; x <= 1; x++) {
+					block = by[x];
+					if (typeof block !== 'undefined') {					
+						key = Neighbours.keyFromCoords({ x:x, y:y, z:z });
+						if (key !== '') {
+							neighbours[key] = block;
+						}
+					}
+				}
+			}
+		}
+		
+		return neighbours;
 	};
 
 	World.prototype.tick = function () {
