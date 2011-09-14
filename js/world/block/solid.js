@@ -23,7 +23,7 @@ function(Block) {
 
 	SolidBlock = function (world, coords) {
 		SolidBlock.baseCtor.call(this, world, coords);
-		this.class = 'solid';
+		this.cssclass = 'solid';
 		this.charge = {
 			current: 0,
 			cursource: undefined,
@@ -32,7 +32,7 @@ function(Block) {
 	};
 	SolidBlock.inherit(Block);
 
-	SolidBlock.type = 'solid';
+	SolidBlock.prototype.type = 'solid';
 
 	SolidBlock.tryPlace = function(world, coords, mouse) {
 		/* Solid block can be placed anywhere */

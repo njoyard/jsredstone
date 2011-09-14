@@ -18,15 +18,14 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 
 define(['world/block/block', 'util/const'], 
 function(Block, cst) {
-	var ButtonBlock, sourcecoords,
-		nb = Block.NB;
+	var ButtonBlock, sourcecoords;
 		
 	sourcecoords = {
-		n: nb.n,
-		s: nb.s,
-		e: nb.e,
-		w: nb.w,
-		c: nb.d
+		n: 'n',
+		s: 's',
+		e: 'e',
+		w: 'w',
+		c: 'd'
 	};
 	
 	ButtonBlock = function (world, coords, args) {

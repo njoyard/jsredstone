@@ -20,8 +20,9 @@ define(['world/neighbours', 'lib/signals'],
 function (Neighbours, signals) {
 	var Block;
 
-	Block = function (coords) {
+	Block = function (world, coords) {
 		this.coords = coords;
+		this.world = world;
 		
 		/* Neighbours helper */
 		this.neighbours = new Neighbours(this);
@@ -36,7 +37,7 @@ function (Neighbours, signals) {
 		this.clicked = new signals.Signal();
 		
 		this.element = undefined;
-		this.class = undefined;
+		this.cssclass = undefined;
 	};
 
 	Block.prototype.type = 'block';
@@ -58,23 +59,19 @@ function (Neighbours, signals) {
 		var i, len, cl;
 
 		if (typeof this.element === 'undefined') {
-			this.class = cls;
+			this.cssclass = cls;
 		} else {
 			cl = this.element.classList;
-			if (typeof cls === 'undefined' && typeof this.class !== undefined) {
+			if (typeof cls === 'undefined' && typeof this.cssclass !== undefined) {
 				cl.remove('B_empty');
-				cl.add('B_' + this.class);
+				cl.add('B_' + this.cssclass);
 			} else {
-				cl.remove('B_' + this.class);
+				cl.remove('B_' + this.cssclass);
 				cl.add('B_' + cls)
-				this.class = cls;
+				this.cssclass = cls;
 			}
 		}
 	};
-	
-	Block.prototype.onClick = function() { };
-	
-	Block.prototype.onHover = function() { };
 	
 	/* World save block serialization
 		Return undefined if the block is empty or otherwise not serializable
