@@ -18,11 +18,12 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 
 define(
 ['world/blocks',
+'gui/tools',
 'gui/worldeditor',
 'gui/loadsave',
 'util/const',
 'lib/i18n!nls/lang'],
-function(blocks, worldeditor, loadsave, cst, lang) {
+function(blocks, tools, worldeditor, loadsave, cst, lang) {
 	var Gui;
 
 	/* Ctor */
@@ -31,24 +32,12 @@ function(blocks, worldeditor, loadsave, cst, lang) {
 		this.world.gui = this;
 		this.we = worldeditor(this);
 	};
-
-	Gui.prototype.tools = {
-		newtool:	{ title: lang.tools.clear },
-		loadtool:	{ title: lang.tools.load },
-		savetool:	{ title: lang.tools.save },
-		shovel:		{ title: lang.tools.erase, key: 'E', editor: { type: 'erase' } },
-		solidtool:	{ title: lang.tools.solid, key: 'S', editor: { type: 'place', placeClass: blocks.Solid } },
-		rstool:		{ title: lang.tools.wire, key: 'W', editor: { type: 'place', placeClass: blocks.Wire } },
-		torchtool:	{ title: lang.tools.torch, key: 'T', editor: { type: 'place', placeClass: blocks.Torch } },
-		reptool:	{ title: lang.tools.repeater, key: 'R', editor: { type: 'place', placeClass: blocks.Repeater } },
-		buttontool:	{ title: lang.tools.button, key: 'B', editor: { type: 'place', placeClass: blocks.Button } }
-	};
 	
 	Gui.prototype.keyPress = function(key) {
 		var tid, tool;
-		for (tid in this.tools) {
-			if (this.tools.hasOwnProperty(tid)) {
-				tool = this.tools[tid];
+		for (tid in tools) {
+			if (tools.hasOwnProperty(tid)) {
+				tool = tools[tid];
 				if (key === tool.key) {
 					this.setTool(tid);
 					return;
@@ -70,7 +59,7 @@ function(blocks, worldeditor, loadsave, cst, lang) {
 		} else if (toolid === 'savetool') {
 			loadsave.showsave(this);
 			return;
-		} else if (typeof this.tools[toolid].editor !== 'undefined') {
+		} else if (typeof tools[toolid].editor !== 'undefined') {
 			/* Deactivate previous tool */
 			toolelem = document.getElementById(this.curTool);
 			if (toolelem && toolelem.bg) {
@@ -84,7 +73,7 @@ function(blocks, worldeditor, loadsave, cst, lang) {
 				this.curTool = toolid;
 			}
 			
-			this.we.setTool(this.tools[toolid].editor);
+			this.we.setTool(tools[toolid].editor);
 		}
 	};
 
@@ -126,9 +115,9 @@ function(blocks, worldeditor, loadsave, cst, lang) {
 			this.setTool(toolid);
 		}).bind(this);
 		
-		for (t in this.tools) {
-			if (this.tools.hasOwnProperty(t)) {
-				tdef = this.tools[t];
+		for (t in tools) {
+			if (tools.hasOwnProperty(t)) {
+				tdef = tools[t];
 			
 				tool = document.createElement('div');
 				tool.id = t;
