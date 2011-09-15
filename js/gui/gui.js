@@ -21,9 +21,8 @@ define(
 'gui/tools',
 'gui/worldeditor',
 'gui/loadsave',
-'util/const',
-'lib/i18n!nls/lang'],
-function(blocks, tools, worldeditor, loadsave, cst, lang) {
+'util/const'],
+function(blocks, tools, worldeditor, loadsave, cst) {
 	var Gui;
 
 	/* Ctor */
