@@ -33,15 +33,15 @@ function(blocks, worldeditor, loadsave, cst, lang) {
 	};
 
 	Gui.prototype.tools = {
-		newtool: { title: lang.tools.clear },
-		loadtool: { title: lang.tools.load },
-		savetool: { title: lang.tools.save },
-		shovel: { title: lang.tools.erase, key: 'E' },
-		solidtool: { title: lang.tools.solid, placeClass: blocks.Solid, key: 'S' },
-		rstool: { title: lang.tools.wire, placeClass: blocks.Wire, key: 'W' },
-		torchtool: { title: lang.tools.torch, placeClass: blocks.Torch, key: 'T' },
-		reptool: { title: lang.tools.repeater, placeClass: blocks.Repeater, key: 'R' },
-		buttontool: { title: lang.tools.button, placeClass: blocks.Button, key: 'B' }
+		newtool:	{ title: lang.tools.clear },
+		loadtool:	{ title: lang.tools.load },
+		savetool:	{ title: lang.tools.save },
+		shovel:		{ title: lang.tools.erase, key: 'E', editor: { type: 'erase' } },
+		solidtool:	{ title: lang.tools.solid, key: 'S', editor: { type: 'place', placeClass: blocks.Solid } },
+		rstool:		{ title: lang.tools.wire, key: 'W', editor: { type: 'place', placeClass: blocks.Wire } },
+		torchtool:	{ title: lang.tools.torch, key: 'T', editor: { type: 'place', placeClass: blocks.Torch } },
+		reptool:	{ title: lang.tools.repeater, key: 'R', editor: { type: 'place', placeClass: blocks.Repeater } },
+		buttontool:	{ title: lang.tools.button, key: 'B', editor: { type: 'place', placeClass: blocks.Button } }
 	};
 	
 	Gui.prototype.keyPress = function(key) {
@@ -60,10 +60,6 @@ function(blocks, worldeditor, loadsave, cst, lang) {
 	/* Set current tool to toolid */
 	Gui.prototype.setTool = function(toolid) {
 		var toolelem;
-
-		if (toolid === this.curTool) {
-			return;
-		}
 		
 		/* One-shot tools */
 		if (toolid === 'newtool') {
@@ -74,19 +70,21 @@ function(blocks, worldeditor, loadsave, cst, lang) {
 		} else if (toolid === 'savetool') {
 			loadsave.showsave(this);
 			return;
-		}
+		} else if (typeof this.tools[toolid].editor !== 'undefined') {
+			/* Deactivate previous tool */
+			toolelem = document.getElementById(this.curTool);
+			if (toolelem && toolelem.bg) {
+				toolelem.bg.classList.remove('selected');
+			}
 
-		/* Deactivate previous tool */
-		toolelem = document.getElementById(this.curTool);
-		if (toolelem && toolelem.bg) {
-			toolelem.bg.classList.remove('selected');
-		}
-
-		/* Activate new tool */
-		toolelem = document.getElementById(toolid);
-		if (toolelem && toolelem.bg) {
-			toolelem.bg.classList.add('selected');
-			this.curTool = toolid;
+			/* Activate new tool */
+			toolelem = document.getElementById(toolid);
+			if (toolelem && toolelem.bg) {
+				toolelem.bg.classList.add('selected');
+				this.curTool = toolid;
+			}
+			
+			this.we.setTool(this.tools[toolid].editor);
 		}
 	};
 
@@ -142,7 +140,7 @@ function(blocks, worldeditor, loadsave, cst, lang) {
 				tool.style.top = '6px';
 				tool.style.left = (6 + 40*ntools) + 'px';
 				
-				if (t === 'shovel' || typeof tdef.placeClass !== 'undefined') {
+				if (typeof tdef.editor !== 'undefined') {
 					tbg = document.createElement('div');
 					tbg.classList.add('toolbg');
 					tbg.style.top = '8px';
@@ -150,13 +148,13 @@ function(blocks, worldeditor, loadsave, cst, lang) {
 					
 					tb.appendChild(tbg);
 					tool.bg = tbg;
-				}
-				
-				if (typeof tdef.placeClass !== 'undefined') {
-					tlabel = document.createElement('span');
-					tlabel.classList.add('toollabel');
-					tool.appendChild(tlabel);
-					tdef.placeClass.countLabel = tlabel;
+					
+					if (tdef.editor.type === 'place') {
+						tlabel = document.createElement('span');
+						tlabel.classList.add('toollabel');
+						tool.appendChild(tlabel);
+						tdef.editor.placeClass.countLabel = tlabel;
+					}
 				}
 				
 				tb.appendChild(tool);

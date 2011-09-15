@@ -28,7 +28,8 @@ function(cst) {
 			left: 0,			// Viewport X offset
 			vbclass: '',		// Current VBlock CSS class
 			mouseHash: '',		// Mouse position cache
-			vpcRule: undefined	// CSS rule for viewport items
+			vpcRule: undefined, // CSS rule for viewport items
+			tool: { type: 'none' }
 		};
 		
 		elements = {
@@ -157,13 +158,17 @@ function(cst) {
 			
 			moveViewport(150, 70);
 		};
+		
+		worldEditor.setTool = function(tool) {
+			state.tool = tool;
+		};
 	
 		worldEditor.mouseMove = function(e) {
 			var bs, ex, ey, bx, by, ox, oy,
-				tool = gui.tools[gui.curTool],
-				coords, block, nbhood, mouse, ret;
+				coords, block, nbhood, mouse, ret,
+				tool = state.tool;
 	
-			if (typeof tool === 'undefined') {
+			if (tool.type === 'none') {
 				state.clickAction = undefined;
 				return;
 			}
@@ -175,15 +180,15 @@ function(cst) {
 			by = Math.floor(ey / bs);
 			ox = ex - bx * bs;
 			oy = ey - by * bs;
+			coords = {x: bx, y: by, z: state.level};
+			block = gui.world.get(coords);
 				
 			// Set status text to block coordinates
 			gui.status.innerText = '(' + bx + ', ' + by + ', ' + state.level + ')';
 			
-			if (typeof tool.placeClass !== 'undefined') {
+			if (tool.type === 'place') {
 				// block place tool
 	
-				coords = {x: bx, y: by, z: state.level};
-				block = gui.world.get(coords);
 				if (typeof block === 'undefined') {
 					mouse = getMouseZones(bx, by, ox, oy);
 					
@@ -211,8 +216,8 @@ function(cst) {
 					this.removeVBlock();
 					state.clickAction = undefined;
 				}
-			} else if (this.gui.curTool === 'shovel') {
-				if (type === 'empty') {
+			} else if (tool.type === 'erase') {
+				if (typeof block === 'undefined') {
 					this.removeVBlock();
 					state.clickAction = undefined;
 				} else {
