@@ -20,7 +20,7 @@ define(['util/const'],
 function(cst) {
 	return function(gui) {
 		var elements, state, worldEditor = {},
-			getMouseZones, moveViewport;
+			getMouseZones, moveViewport, setMouseAction, setVBlock, removeVBlock;
 		
 		state = {
 			level: 0,			// Current editing level
@@ -29,6 +29,9 @@ function(cst) {
 			vbclass: '',		// Current VBlock CSS class
 			mouseHash: '',		// Mouse position cache
 			vpcRule: undefined, // CSS rule for viewport items
+			mouse: {
+				hash: ''
+			},
 			tool: { type: 'none' }
 		};
 		
@@ -60,11 +63,11 @@ function(cst) {
 			}
 
 			mhash = bx + ':' + by + ':' + mouse;
-			if (state.mouseHash === mhash) {
+			if (state.mouse.hash === mhash) {
 				return;
 			}
 
-			state.mouseHash = mhash;
+			state.mouse.hash = mhash;
 			return mouse;
 		};
 		
@@ -103,6 +106,117 @@ function(cst) {
 			state.vpcRule.style.marginTop = offsetY + 'px';
 			elements.viewport.style.backgroundPositionY = offsetY + 'px';
 			elements.xaxis.style.marginTop = offsetY + 'px';
+		};
+		
+		/* Find out what can be done with current tool at mouse position (mouseX, mouseY)
+			Mouse coordinates are optional; if unspecified, recompute action with last known coordinates */
+		setMouseAction = function(mouseX, mouseY) {
+			var bs, ex, ey, bx, by, ox, oy,
+				coords, block, nbhood, mouse, ret,
+				tool = state.tool;
+				
+			if (typeof mouseX === 'undefined') {
+				mouseX = state.mouse.X;
+				mouseY = state.mouse.Y;
+				
+				// Force recompute
+				state.mouse.hash = '';
+			} else {
+				state.mouse.X = mouseX;
+				state.mouse.Y = mouseY;
+			} 
+	
+			if (tool.type === 'none') {
+				state.mouseAction = undefined;
+				return;
+			}
+			
+			bs = cst.blockSize;
+			ex = mouseX - state.left;
+			ey = mouseY - state.top;
+			bx = Math.floor(ex / bs);
+			by = Math.floor(ey / bs);
+			ox = ex - bx * bs;
+			oy = ey - by * bs;
+			coords = {x: bx, y: by, z: state.level};
+			block = gui.world.get(coords);
+				
+			// Set status text to block coordinates
+			gui.status.innerText = '(' + bx + ', ' + by + ', ' + state.level + ')';
+			
+			if (tool.type === 'place') {
+				// block place tool
+	
+				if (typeof block === 'undefined') {
+					mouse = getMouseZones(bx, by, ox, oy);
+					
+					if (typeof mouse !== 'undefined') {
+						nbhood = gui.world.findNeighbours(coords);
+						ret = tool.placeClass.tryPlace(nbhood, mouse);
+	
+						if (typeof ret !== 'undefined' && typeof ret.css !== 'undefined') {
+							setVBlock(bx, by, 'B_' + ret.css);
+							state.mouseAction = {
+								place: {
+									coords: coords,
+									class: tool.placeClass,
+									css: ret.css,
+									args: ret.args
+								}
+							};
+						} else {
+							removeVBlock();
+							state.mouseAction = undefined;
+						}
+					}
+				} else {
+					state.mouseHash = undefined;
+					removeVBlock();
+					state.mouseAction = undefined;
+				}
+			} else if (tool.type === 'erase') {
+				if (typeof block === 'undefined') {
+					removeVBlock();
+					state.mouseAction = undefined;
+				} else {
+					setVBlock(bx, by, 'remove');
+					state.mouseAction = {
+						remove: {
+							coords: coords
+						}
+					};
+				}
+			}
+		};
+		
+		/* Place virtual block at coordinates (x, y) with CSS class className */
+		setVBlock = function(x, y, className) {
+			var vb = elements.vblock,
+				bs = cst.blockSize;
+			
+			if (className !== state.vbclass) {
+				if (state.vbclass !== '') {
+					vb.classList.remove(state.vbclass);
+				}
+				vb.classList.add(className);
+				state.vbclass = className;
+			}
+			
+			if (vb.parentNode === null) {
+				elements.viewport.appendChild(vb);
+			}
+			
+			vb.style.top = (bs * y) + 'px';
+			vb.style.left = (bs * x) + 'px';
+		};
+		
+		/* Remove virtual block */
+		removeVBlock = function() {
+			var vb = elements.vblock;
+			
+			if (vb.parentNode !== null) {
+				vb.parentNode.removeChild(vb);
+			}
 		};
 	
 		/* Render world editor into viewport */
@@ -161,104 +275,12 @@ function(cst) {
 		
 		worldEditor.setTool = function(tool) {
 			state.tool = tool;
+			setMouseAction();
 		};
+		
 	
 		worldEditor.mouseMove = function(e) {
-			var bs, ex, ey, bx, by, ox, oy,
-				coords, block, nbhood, mouse, ret,
-				tool = state.tool;
-	
-			if (tool.type === 'none') {
-				state.clickAction = undefined;
-				return;
-			}
-			
-			bs = cst.blockSize;
-			ex = e.clientX - state.left;
-			ey = e.clientY - state.top;
-			bx = Math.floor(ex / bs);
-			by = Math.floor(ey / bs);
-			ox = ex - bx * bs;
-			oy = ey - by * bs;
-			coords = {x: bx, y: by, z: state.level};
-			block = gui.world.get(coords);
-				
-			// Set status text to block coordinates
-			gui.status.innerText = '(' + bx + ', ' + by + ', ' + state.level + ')';
-			
-			if (tool.type === 'place') {
-				// block place tool
-	
-				if (typeof block === 'undefined') {
-					mouse = getMouseZones(bx, by, ox, oy);
-					
-					if (typeof mouse !== 'undefined') {
-						nbhood = gui.world.findNeighbours(coords);
-						ret = tool.placeClass.tryPlace(nbhood, mouse);
-	
-						if (typeof ret !== 'undefined' && typeof ret.css !== 'undefined') {
-							this.setVBlock(bx, by, 'B_' + ret.css);
-							state.clickAction = {
-								place: {
-									coords: coords,
-									class: tool.placeClass,
-									css: ret.css,
-									args: ret.args
-								}
-							};
-						} else {
-							this.removeVBlock();
-							state.clickAction = undefined;
-						}
-					}
-				} else {
-					state.mouseHash = undefined;
-					this.removeVBlock();
-					state.clickAction = undefined;
-				}
-			} else if (tool.type === 'erase') {
-				if (typeof block === 'undefined') {
-					this.removeVBlock();
-					state.clickAction = undefined;
-				} else {
-					this.setVBlock(bx, by, 'remove');
-					state.clickAction = {
-						remove: {
-							coords: coords
-						}
-					};
-				}
-			}
-		};
-		
-		/* Place virtual block at coordinates (x, y) with CSS class className */
-		worldEditor.setVBlock = function(x, y, className) {
-			var vb = elements.vblock,
-				bs = cst.blockSize;
-			
-			if (className !== state.vbclass) {
-				if (state.vbclass !== '') {
-					vb.classList.remove(state.vbclass);
-				}
-				vb.classList.add(className);
-				state.vbclass = className;
-			}
-			
-			if (vb.parentNode === null) {
-				elements.viewport.appendChild(vb);
-			}
-			
-			vb.style.top = (bs * y) + 'px';
-			vb.style.left = (bs * x) + 'px';
-		};
-		
-		/* Remove virtual block */
-		worldEditor.removeVBlock = function() {
-			var vb = elements.vblock;
-			
-			if (vb.parentNode !== null) {
-				vb.parentNode.removeChild(vb);
-			}
+			setMouseAction(e.clientX, e.clientY);
 		};
 		
 		/* Set current editing level */
@@ -281,6 +303,7 @@ function(cst) {
 				}
 				
 				state.level = level;
+				setMouseAction();
 			}
 		};
 		
