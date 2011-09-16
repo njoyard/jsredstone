@@ -20,24 +20,23 @@ define(['util/const'],
 function(cst) {
 	return function(gui) {
 		var elements, state, worldEditor = {},
-			getMouseZones, moveViewport, setMouseAction, setVBlock, removeVBlock;
+			getMouseZones, moveViewport,
+			findMouseAction, performMouseAction,
+			setVBlock, removeVBlock,
+			addBlock, removeBlock,
+			mouseDown, mouseUp, mouseMove, mouseWheel;
 		
 		state = {
-			level: 0,			// Current editing level
-			top: 0,				// Viewport Y offset
-			left: 0,			// Viewport X offset
-			vbclass: '',		// Current VBlock CSS class
-			mouseHash: '',		// Mouse position cache
-			vpcRule: undefined, // CSS rule for viewport items
-			mouse: {
-				hash: ''
-			},
+			level: 0,
+			top: 0,
+			left: 0,
+			vbclass: '',
+			mouse: { hash: '', button: false },
 			tool: { type: 'none' }
 		};
 		
-		elements = {
-			levels: []
-		};
+		elements = { levels: [] };
+		
 		
 		/* Returns a string with chars indicating in which zones the pointer is (n, s, e, w, c)
 			in the current block. Returns undefined if unchanged since last call. */
@@ -70,6 +69,7 @@ function(cst) {
 			state.mouse.hash = mhash;
 			return mouse;
 		};
+		
 		
 		/* Move viewport content to (offsetX, offsetY) */
 		moveViewport = function(offsetX, offsetY, relative) {
@@ -108,14 +108,19 @@ function(cst) {
 			elements.xaxis.style.marginTop = offsetY + 'px';
 		};
 		
+		
 		/* Find out what can be done with current tool at mouse position (mouseX, mouseY)
 			Mouse coordinates are optional; if unspecified, recompute action with last known coordinates */
-		setMouseAction = function(mouseX, mouseY) {
+		findMouseAction = function(mouseX, mouseY) {
 			var bs, ex, ey, bx, by, ox, oy,
 				coords, block, nbhood, mouse, ret,
 				tool = state.tool;
 				
 			if (typeof mouseX === 'undefined') {
+				if (typeof state.mouse.X === 'undefined') {
+					return;
+				}
+				
 				mouseX = state.mouse.X;
 				mouseY = state.mouse.Y;
 				
@@ -127,7 +132,7 @@ function(cst) {
 			} 
 	
 			if (tool.type === 'none') {
-				state.mouseAction = undefined;
+				state.mouse.action = undefined;
 				return;
 			}
 			
@@ -156,38 +161,94 @@ function(cst) {
 	
 						if (typeof ret !== 'undefined' && typeof ret.css !== 'undefined') {
 							setVBlock(bx, by, 'B_' + ret.css);
-							state.mouseAction = {
-								place: {
-									coords: coords,
-									class: tool.placeClass,
-									css: ret.css,
-									args: ret.args
-								}
+							state.mouse.action = {
+								type: 'place',
+								coords: coords,
+								class: tool.placeClass,
+								css: ret.css,
+								args: ret.args
 							};
 						} else {
+							delete state.mouse.action;
 							removeVBlock();
-							state.mouseAction = undefined;
 						}
 					}
 				} else {
-					state.mouseHash = undefined;
+					state.mouse.hash = '';
+					delete state.mouse.action;
 					removeVBlock();
-					state.mouseAction = undefined;
 				}
 			} else if (tool.type === 'erase') {
 				if (typeof block === 'undefined') {
+					delete state.mouse.action;
 					removeVBlock();
-					state.mouseAction = undefined;
 				} else {
 					setVBlock(bx, by, 'remove');
-					state.mouseAction = {
-						remove: {
-							coords: coords
-						}
-					};
+					state.mouse.action = { type: 'remove', coords: coords };
 				}
 			}
 		};
+		
+		
+		/* Perform current mouse action */
+		performMouseAction = function() {
+			var act = state.mouse.action;
+			
+			if (typeof act !== 'undefined') {
+				switch (act.type) {
+				case 'place':
+					addBlock(act.coords, act.class, act.args);
+					break;
+					
+				case 'remove':
+					removeBlock(act.coords);
+					break;
+				}
+			}
+			
+			findMouseAction();
+		};
+		
+		
+		/* Add a block */
+		addBlock = function(coords, blockClass, args) {
+			var world = gui.world,
+				block = world.get(coords),
+				bs = cst.blockSize,
+				e;
+				
+			if (typeof block !== 'undefined') {
+				throw "Cannot place block, a block already exists here";
+			}
+			
+			/* Create world block */
+			block = new blockClass(world, coords, args);
+			world.set(coords, block);
+			
+			/* Create UI block */
+			e = document.createElement('div');
+			e.classList.add('block');
+			e.style.left = (coords.x * bs) + 'px';
+			e.style.top = (coords.y * bs) + 'px';
+			elements.levels[coords.z].appendChild(e);
+			
+			block.element = e;
+			block.createdElement.dispatch();
+		};
+		
+		
+		/* Remove a block */
+		removeBlock = function(coords) {
+			var world = gui.world,
+				block = world.get(coords);
+				
+			if (typeof block === 'undefine') {
+				throw "No block to remove"
+			}
+			
+			world.unset(coords);
+		};
+		
 		
 		/* Place virtual block at coordinates (x, y) with CSS class className */
 		setVBlock = function(x, y, className) {
@@ -210,6 +271,7 @@ function(cst) {
 			vb.style.left = (bs * x) + 'px';
 		};
 		
+		
 		/* Remove virtual block */
 		removeVBlock = function() {
 			var vb = elements.vblock;
@@ -218,10 +280,49 @@ function(cst) {
 				vb.parentNode.removeChild(vb);
 			}
 		};
+		
+		
+		/* Mouse wheel handler: change levels */
+		mouseWheel = (function(e) {
+			var delta = e.detail ? e.detail * -1 : e.wheelDelta / 40;
+			if (delta > 0) {
+				this.setLevel(state.level + 1);
+			}
+			if (delta < 0) {
+				this.setLevel(state.level - 1);
+			}
+		}).bind(worldEditor);
+		
+		
+		/* Mouse move handler */
+		mouseMove = function(e) {
+			findMouseAction(e.clientX, e.clientY);
+			
+			if (state.mouse.button) {
+				performMouseAction();
+			}
+		};
+		
+		
+		/* Mouse down handler */
+		mouseDown = function(e) {
+			state.mouse.button = true;
+			performMouseAction();
+		};
+		
+		
+		/* Mouse up handler */
+		mouseUp = function(e) {
+			state.mouse.button = false;
+		};
+		
+		
+		/******************** Public World Editor interface ********************/
+	
 	
 		/* Render world editor into viewport */
 		worldEditor.render = function(viewport) {
-			var mousemove, mousewheel, i, e;
+			var i, e;
 			
 			elements.viewport = viewport;
 			
@@ -252,36 +353,23 @@ function(cst) {
 			e.classList.add('vpitem');
 			elements.vblock = e;
 		
-			// Set mousemove event
-			mousemove = (function(e) { return this.mouseMove(e); }).bind(this);
-			viewport.addEventListener('mousemove', function(e) { mousemove(e); });
+			// Set mouse events
+			viewport.addEventListener('mousemove', function(e) { mouseMove(e); });
+			viewport.addEventListener('mousedown', function(e) { mouseDown(e); });
+			viewport.addEventListener('mouseup', function(e) { mouseUp(e); });
 			
 			// Set mousewheel events
-			mousewheel = (function(e) {
-				var delta = e.detail ? e.detail * -1 : e.wheelDelta / 40;
-				if (delta > 0) {
-					this.setLevel(state.level + 1);
-				}
-				if (delta < 0) {
-					this.setLevel(state.level - 1);
-				}
-			}).bind(this);
-			viewport.addEventListener('DOMMouseScroll', function(e) { mousewheel(e); });
-			viewport.addEventListener('mousewheel', function(e) { mousewheel(e); });
-			
-			
-			moveViewport(150, 70);
+			viewport.addEventListener('DOMMouseScroll', function(e) { mouseWheel(e); });
+			viewport.addEventListener('mousewheel', function(e) { mouseWheel(e); });
 		};
 		
+		
+		/* Set editor tool */
 		worldEditor.setTool = function(tool) {
 			state.tool = tool;
-			setMouseAction();
+			findMouseAction();
 		};
 		
-	
-		worldEditor.mouseMove = function(e) {
-			setMouseAction(e.clientX, e.clientY);
-		};
 		
 		/* Set current editing level */
 		worldEditor.setLevel = function(level) {
@@ -303,7 +391,7 @@ function(cst) {
 				}
 				
 				state.level = level;
-				setMouseAction();
+				findMouseAction();
 			}
 		};
 		
