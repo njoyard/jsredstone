@@ -221,7 +221,7 @@ body, textarea {
 
 /* Blocks */
 
-.block, .vblock, .rs_ovl {
+.block, .vblock, .wire_overlay {
 	position: absolute;
 	display: block;
 	background: url(img/textures.png) 0 0 no-repeat;
@@ -229,13 +229,12 @@ body, textarea {
 	height: 32px;
 }
 
-.rs_ovl {
-	position: absolute;
+.wire_overlay {
 	top: 0;
 	left: 0;
 }
 
-.rs_label {
+.wire_label {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -258,6 +257,7 @@ body, textarea {
 .savetool 		{ background-position: -256px -96px; }
 .selecttool		{ background-position: -288px -96px; }
 .probetool 		{ background-position: -320px -96px; }
+.pantool 		{ background-position: -320px -160px; }
 
 /* Redstone wire */
 .B_rson_ew		{ background-position: 0 0; }

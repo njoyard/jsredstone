@@ -22,6 +22,7 @@ define({
 			clear: "New world",
 			load: "Load World",
 			save: "Save World",
+			pan: "Pan tool (P)",
 			erase: "Erase tool (E)",
 			solid: "Solid block (S)",
 			wire: "Redstone wire (W)",
@@ -29,6 +30,7 @@ define({
 			repeater: "Redstone repeater (R)",
 			button: "Button (B)"
 		},
+		
 		loadsave: {
 			load: {
 				title: "Load world",

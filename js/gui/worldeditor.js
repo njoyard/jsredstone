@@ -131,8 +131,9 @@ function(cst) {
 				state.mouse.Y = mouseY;
 			} 
 	
-			if (tool.type === 'none') {
-				state.mouse.action = undefined;
+			if (tool.type === 'none' || tool.type === 'pan') {
+				delete state.mouse.action;
+				removeVBlock();
 				return;
 			}
 			
@@ -228,6 +229,7 @@ function(cst) {
 			/* Create UI block */
 			e = document.createElement('div');
 			e.classList.add('block');
+			e.classList.add('vpitem');
 			e.style.left = (coords.x * bs) + 'px';
 			e.style.top = (coords.y * bs) + 'px';
 			elements.levels[coords.z].appendChild(e);
@@ -296,10 +298,16 @@ function(cst) {
 		
 		/* Mouse move handler */
 		mouseMove = function(e) {
-			findMouseAction(e.clientX, e.clientY);
+			if (state.mouse.button && state.tool.type === 'pan') {
+				moveViewport(e.clientX - state.pan.prevX, e.clientY - state.pan.prevY, true);
+				state.pan.prevX = e.clientX;
+				state.pan.prevY = e.clientY;
+			} else {
+				findMouseAction(e.clientX, e.clientY);
 			
-			if (state.mouse.button) {
-				performMouseAction();
+				if (state.mouse.button) {
+					performMouseAction();
+				}
 			}
 		};
 		
@@ -307,13 +315,25 @@ function(cst) {
 		/* Mouse down handler */
 		mouseDown = function(e) {
 			state.mouse.button = true;
-			performMouseAction();
+			
+			if (state.tool.type === 'pan') {
+				state.pan = {
+					prevX: e.clientX,
+					prevY: e.clientY
+				};
+			} else {
+				performMouseAction();
+			}
 		};
 		
 		
 		/* Mouse up handler */
 		mouseUp = function(e) {
 			state.mouse.button = false;
+			
+			if (state.tool.type === 'pan') {
+				delete state.pan;
+			}
 		};
 		
 		
