@@ -29,7 +29,7 @@ function (Neighborhood, signals) {
 	};
 	
 	/* World block getter */
-	World.prototype.get = function(coords, block) {
+	World.prototype.get = function(coords) {
 		if (typeof this.blocks[coords.z] === 'undefined') {
 			return undefined;
 		}
@@ -80,19 +80,19 @@ function (Neighborhood, signals) {
 			nbhood = {coords: coords};
 		
 		for (z = -1; z <= 1; z++) {
-			bz = this.blocks[z];
+			bz = this.blocks[coords.z + z];
 		 	if (typeof bz === 'undefined') {
 		 		continue;
 		 	}
 		 	
 			for (y = -1; y <= 1; y++) {
-				by = bz[y];
+				by = bz[coords.y + y];
 				if (typeof by === 'undefined') {
 					continue;
 				}
 				
 				for (x = -1; x <= 1; x++) {
-					block = by[x];
+					block = by[coords.x + x];
 					if (typeof block !== 'undefined') {					
 						key = Neighborhood.keyFromCoords({ x:x, y:y, z:z });
 						if (key !== '') {
