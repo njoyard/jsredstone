@@ -151,7 +151,7 @@ body, textarea {
 
 .level + .level {
 	/* Add transparent background to all levels except the first one */
-	background-color: rgba(100%, 100%, 100%, 0.1);
+	background-color: rgba(0, 0, 0, 0.2);
 }
 
 .level.active, .level.below {
@@ -222,8 +222,8 @@ body, textarea {
 /* Blocks */
 
 .block, .vblock, .rs_ovl {
-	position: relative;
-	display: inline-block;
+	position: absolute;
+	display: block;
 	background: url(img/textures.png) 0 0 no-repeat;
 	width: 32px;
 	height: 32px;
