@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-define(['lib/i18n!nls/lang'],
-function(lang) {
+define(['world/blocks', 'lib/i18n!nls/lang'],
+function(blocks, lang) {
 	return {
 		newtool:	{ title: lang.tools.clear },
 		loadtool:	{ title: lang.tools.load },
