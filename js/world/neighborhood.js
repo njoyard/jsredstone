@@ -21,15 +21,7 @@ function(signals) {
 	var Neighborhood, lk, nk;
 	
 	Neighborhood = function(block) {
-		var keys = this.NEIGHBOUR_KEYS,
-			len = keys.length,
-			i;
-			
 		this.block = block;	
-		
-		for (i = 0; i < len; i++) {
-			this[keys[i]] = null;
-		}
 		
 		this.added = new signals.Signal();
 		this.removed = new signals.Signal();
@@ -110,21 +102,23 @@ function(signals) {
 	
 	/* Add a neighbour */
 	Neighborhood.prototype.add = function(key, block) {
-		if (this[key] !== null) {
+		if (typeof this[key] !== 'undefined') {
 			throw "Cannot redefine neighbour";
 		}
 		
 		this[key] = block;
+		console.log(this.block.coords.x + ","+this.block.coords.y +","+this.block.coords.z+ " - add block at " + key);
 		this.added.dispatch(key, block);
 	}
 	
 	/* Remove a neighbour */
 	Neighborhood.prototype.remove = function(key) {
-		if (this[key] === null) {
+		if (typeof this[key] === 'undefined') {
 			throw "Cannot remove undefined neighbour";
 		}
 		
-		this[key] = null;
+		delete this[key];
+		console.log(this.block.coords.x + ","+this.block.coords.y +","+this.block.coords.z+ " - remove block at " + key);
 		this.removed.dispatch(key);
 	}
 	
@@ -133,7 +127,7 @@ function(signals) {
 		var block, key, rkey;
 		
 		for (key in blocks) {
-			if (blocks.hasOwnProperty(key)) {
+			if (blocks.hasOwnProperty(key) && key !== 'coords') {
 				block = blocks[key];
 				rkey = this.reverse(key);
 				
@@ -150,7 +144,7 @@ function(signals) {
 			i, rkey;
 			
 		for (i = 0; i < len; i++) {
-			if (this[keys[i]] !== null) {
+			if (typeof this[keys[i]] !== 'undefined') {
 				this.remove(keys[i]);
 				rkey = this.reverse(keys[i]);
 				this[keys[i]].nbhood.remove(rkey);
