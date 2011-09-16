@@ -67,7 +67,7 @@ function (Block, cst) {
 	};
 
 	RepeaterBlock.prototype.setCharge = function(charge) {
-		var b = this.get(this.dir);
+		var b = this.nbhood[this.dir];
 		
 		this.charge = charge;
 		this.updateClass();
@@ -85,6 +85,7 @@ function (Block, cst) {
 
 	RepeaterBlock.prototype.setDirection = function(dir) {
 		this.dir = dir;
+		this.rdir = this.nbhood.reverse(dir);
 		this.setCharge(0);
 	};
 	
@@ -123,7 +124,7 @@ function (Block, cst) {
 		this.setCharge(c > 0 ? cst.maxCharge : 0);
 		
 		// Save input charge in buffer and move pointer forward
-		b = this.get(nb.revkey(this.dir));
+		b = this.nbhood[this.rdir];
 		if (typeof b !== 'undefined') {
 			c = b.getChargeFrom(this.dir);
 		} else {
