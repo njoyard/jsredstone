@@ -458,6 +458,20 @@ function(cst) {
 		
 		/* Set editor tool */
 		worldEditor.setTool = function(tool) {
+			switch(tool.type) {
+				case 'place':
+					elements.viewport.style.cursor = 'crosshair';
+					break;
+					
+				case 'pan':
+					elements.viewport.style.cursor = 'move';
+					break;
+					
+				default:
+					elements.viewport.style.cursor = 'default';
+					break;
+			}
+		
 			state.tool = tool;
 			findMouseAction();
 		};
