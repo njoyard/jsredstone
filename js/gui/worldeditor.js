@@ -381,6 +381,8 @@ function(cst) {
 					performMouseAction();
 				}
 			}
+			
+			e.preventDefault();
 		};
 		
 		
@@ -396,6 +398,8 @@ function(cst) {
 			} else {
 				performMouseAction();
 			}
+			
+			e.preventDefault();
 		};
 		
 		
