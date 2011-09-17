@@ -23,7 +23,7 @@ function(cst) {
 			getMouseZones, moveViewport,
 			findMouseAction, performMouseAction,
 			setVBlock, removeVBlock,
-			addBlock, removeBlock,
+			addBlock, removeBlock, updateMaxes,
 			mouseDown, mouseUp, mouseMove, mouseWheel;
 		
 		state = {
@@ -32,7 +32,15 @@ function(cst) {
 			left: 0,
 			vbclass: '',
 			mouse: { hash: '', button: false },
-			tool: { type: 'none' }
+			tool: { type: 'none' },
+			maxes: {
+				x: {},
+				y: {},
+				maxX: -Infinity,
+				minX: Infinity,
+				maxY: -Infinity,
+				minY: Infinity
+			}
 		};
 		
 		elements = { levels: [] };
@@ -225,6 +233,7 @@ function(cst) {
 			/* Create world block */
 			block = new blockClass(world, coords, args);
 			world.set(coords, block);
+			updateMaxes(coords);
 			
 			/* Create UI block */
 			e = document.createElement('div');
@@ -249,6 +258,69 @@ function(cst) {
 			}
 			
 			world.unset(coords);
+			updateMaxes(coords, true);
+		};
+		
+		
+		/* Maintain x, y extrema values by keeping each coordinate usage count */
+		updateMaxes = function(coords, remove) {
+			var mx = state.maxes,
+				x = coords.x,
+				y = coords.y;
+			
+			if (remove) {
+				if (mx.x[x] === 1) {
+					delete mx.x[x];
+					
+					if (x === mx.maxX) {
+						mx.maxX = Math.max.apply(Math, Object.keys(mx.x));
+					}
+					if (x === mx.minX) {
+						mx.minX = Math.min.apply(Math, Object.keys(mx.x));
+					}
+				} else {
+					mx.x[x] -= 1;
+				}
+				
+				if (mx.y[y] === 1) {
+					delete mx.y[y];
+					
+					if (y === mx.maxY) {
+						mx.maxY = Math.max.apply(Math, Object.keys(mx.y));
+					}
+					if (y === mx.minY) {
+						mx.minY = Math.min.apply(Math, Object.keys(mx.y));
+					}
+				} else {
+					mx.y[y] -= 1;
+				}
+			} else {
+				if (typeof mx.x[x] === 'undefined') {
+					mx.x[x] = 1;
+					
+					if (typeof mx.maxX === 'undefined' || x > mx.maxX) {
+						mx.maxX = x;
+					}
+					if (typeof mx.minX === 'undefined' || x < mx.minX) {
+						mx.minX = x;
+					}
+				} else {
+					mx.x[x] += 1;
+				}
+				
+				if (typeof mx.y[y] === 'undefined') {
+					mx.y[y] = 1;
+					
+					if (typeof mx.maxY === 'undefined' || y > mx.maxY) {
+						mx.maxY = y;
+					}
+					if (typeof mx.minY === 'undefined' || y < mx.minY) {
+						mx.minY = y;
+					}
+				} else {
+					mx.y[y] += 1;
+				}
+			}
 		};
 		
 		
