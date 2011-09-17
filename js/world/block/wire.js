@@ -19,8 +19,7 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 define(['world/block/block', 'util/const'],
 function(Block, cst) {
 	var WireBlock, getConnections, classFromConnections,
-		dirs = ['n', 's', 'e', 'w'],
-		nb = Block.NB;
+		dirs = ['n', 's', 'e', 'w'];
 
 	/* Examine the world around to find connections
 		Return an object with n, s, e, w as keys. Each key is present only when there is a connection at this cardinal point.
@@ -117,19 +116,20 @@ function(Block, cst) {
 		};
 		
 		this.ovl = document.createElement('div');
-		this.ovl.classList.add('block');
-		this.ovl.classList.add('rs_ovl');
+		this.ovl.classList.add('wire_overlay');
 		
 		this.clabel = document.createElement('span');
-		this.clabel.classList.add('rs_label');
+		this.clabel.classList.add('wire_label');
 		
-		this.connections = getConnections(this.world, this.coords);
-		this.updateClass();
-		this.propagateCharge();
+		this.connections = {};
+		
+		this.nbhood.added.add(this.onNeighboursChanged, this);
+		this.nbhood.removed.add(this.onNeighboursChanged, this);
+		this.createdElement.add(this.onElementCreated, this);
 	};
 	WireBlock.inherit(Block);
 
-	WireBlock.type = 'wire';
+	WireBlock.prototype.type = 'wire';
 
 	WireBlock.tryPlace = function(nbhood, mouse) {
 		var block = nbhood.d;
@@ -142,65 +142,63 @@ function(Block, cst) {
 			};
 		}
 	};
+	
+	WireBlock.prototype.onElementCreated = function() {
+		this.updateClass();
+		this.element.appendChild(this.ovl);
+		this.element.appendChild(this.clabel);
+	};
 
 	WireBlock.prototype.updateClass = function() {
 		this.setClass('rson_' + classFromConnections(this.connections));
 	};
 	
 	WireBlock.prototype.setClass = function(cls) {
+		var cl = this.ovl.classList;
+		
+		WireBlock.base.setClass.call(this, cls);
+		
 		this.ovl.style.opacity = 1 - (this.charge.curcharge / cst.maxCharge);
 		this.clabel.innerText = this.charge.curcharge === 0 ? '' : this.charge.curcharge;
 		
-		if (typeof this.class !== 'undefined') {
-			this.ovl.classList.remove('B_' + this.class.replace('on', 'off'));
-		}
-		
 		if (typeof cls !== 'undefined') {
-			this.ovl.classList.add('B_' + cls.replace('on', 'off'));
+			if (typeof this.ovlclass !== 'undefined' && this.ovlclass !== cls) {
+				cl.remove(this.ovlclass);
+			}
+			
+			if (this.ovlclass !== cls) {
+				this.ovlclass = 'B_' + cls.replace('on', 'off');
+				cl.add(this.ovlclass);
+			}
 		}
-		
-		if (typeof cls === 'undefined' && typeof this.class !== 'undefined') {
-			this.ovl.classList.add('B_' + this.class.replace('on', 'off'));
-		}
-		
-		WireBlock.base.setClass.call(this, cls);
 	};
 	
 	WireBlock.prototype.setChargeFrom = function (type, source, charge) {
-		var //tc = nb.str(this.coords),
-			me = this.charge,
+		var me = this.charge,
 			conns = this.connections,
-			b = this.get(source),
+			b = this.nbhood[source],
 			c, conn;
-			
-		// console.log(tc + " receive " + charge + " from " + source);
 
 		if (typeof this.removing !== 'undefined') {
 			// Ignore charges received when removing
-			// console.log("+ removing; charge ignored");
 			return;
 		}
 			
 		if (source !== me.cursource && b.type === 'wire' && (charge + 1) < (me.curcharge - 1)) {
 			// receiving power from a less powered part, send back our charge
-			// console.log("+ send back because curcharge = " + me.curcharge);
 			b.setChargeFrom('wire', nb.revkey(source), me.curcharge - 1);
 			return;
 		}
 		
-		// TODO manage multiple sources (when max charge is received equally from multiple sources)
 		if (charge > me.curcharge) {
 			// new source
-			// console.log("+ this is the new source");
 			me.curcharge = charge;
 			me.cursource = source;
 		} else if (source === me.cursource && charge < me.curcharge) {
 			// current source lowers its input
-			// console.log("+ current source lowers charge");
 			me.curcharge = charge
 			me.cursource = charge == 0 ? undefined : source;
 		} else {
-			// console.log("+ done");
 			return;
 		}
 		
@@ -214,47 +212,37 @@ function(Block, cst) {
 	
 	// Propagate charge to connections except current source, and to block below
 	WireBlock.prototype.propagateCharge = function () {
-		var //tc = nb.str(this.coords),
-			conns = this.connections,
+		var conns = this.connections,
 			me = this.charge,
 			b , c;
 			
-		// console.log(tc + " propagating");
 		for (c in conns) {
 			if (conns.hasOwnProperty(c)) {
 				conn = conns[c] + c; // Concatenate level and direction
 				if (typeof me.cursource === 'undefined' || conn !== me.cursource) {
-					b = this.get(conn);
+					b = this.nbhood[conn];
 					if (typeof b !== 'undefined' && (b.type === 'wire' || b.type === 'solid')) {
-						// console.log("+ propagate to " + conn);
-						b.setChargeFrom('wire', nb.revkey(conn), Math.max(0, me.curcharge - 1));
+						b.setChargeFrom('wire', this.nbhood.reverse(conn), Math.max(0, me.curcharge - 1));
 					}
 				}
 			}
 		}
 		
-		b = this.get('d');
+		b = this.nbhood.d;
 		if (typeof b !== 'undefined') {
 			b.setChargeFrom('wire', 'u', me.curcharge);
 		}
 	};
 	
-	WireBlock.prototype.onWorldChanged = function(coords) {
-		var block;
-		
+	WireBlock.prototype.onNeighboursChanged = function(key, block) {
 		/* Request removal if block below was removed */
-		if (nb.equals(coords, nb.add(this.coords, nb.d))) {
-			block = this.world.get(coords);
-			if (typeof block !== 'undefined' && block.type !== 'solid') {
-				return true;
-			}
+		if (key === 'd' && typeof block === 'undefined') {
+			throw "Should remove here !";
 		}
 		
 		/* Update connections */
-		this.connections = getConnections(this.world, this.coords);
+		this.connections = getConnections(this.nbhood);
 		this.updateClass();
-		
-		return false;
 	};
 	
 	WireBlock.prototype.onRemove = function() {
@@ -277,14 +265,9 @@ function(Block, cst) {
 		this.propagateCharge();
 	};
 	
-	WireBlock.prototype.onElementCreated = function() {
-		this.element.appendChild(this.ovl);
-		this.element.appendChild(this.clabel);
-	};
-	
 	WireBlock.prototype.serialize = function() {
 		return {
-			dep: nb.d
+			dep: 'd'
 		};
 	};
 
