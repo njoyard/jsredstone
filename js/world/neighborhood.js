@@ -107,7 +107,6 @@ function(signals) {
 		}
 		
 		this[key] = block;
-		console.log(this.block.coords.x + ","+this.block.coords.y +","+this.block.coords.z+ " - add block at " + key);
 		this.added.dispatch(key, block);
 	}
 	
@@ -118,7 +117,6 @@ function(signals) {
 		}
 		
 		delete this[key];
-		console.log(this.block.coords.x + ","+this.block.coords.y +","+this.block.coords.z+ " - remove block at " + key);
 		this.removed.dispatch(key);
 	}
 	
