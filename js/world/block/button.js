@@ -18,15 +18,7 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 
 define(['world/block/block', 'util/const'], 
 function(Block, cst) {
-	var ButtonBlock, sourcecoords;
-		
-	sourcecoords = {
-		n: 'n',
-		s: 's',
-		e: 'e',
-		w: 'w',
-		c: 'd'
-	};
+	var ButtonBlock;
 	
 	ButtonBlock = function (world, coords, args) {
 		ButtonBlock.baseCtor.call(this, world, coords);
@@ -34,9 +26,13 @@ function(Block, cst) {
 		this.remaining = 0;
 		this.setDirection(args.dir);
 		this.setCharge(0);
+		
+		this.nbhood.added.add(this.onNeighboursChanged, this);
+		this.nbhood.removed.add(this.onNeighboursChanged, this);
+		this.clicked.add(this.onClicked, this);
 	};
 	ButtonBlock.inherit(Block);
-	ButtonBlock.type = 'button';
+	ButtonBlock.prototype.type = 'button';
 	
 	ButtonBlock.tryPlace = function(nbhood, mouse) {
 		var dir, block;
@@ -80,9 +76,9 @@ function(Block, cst) {
 		
 		/* Propagate charge to adjacent wires and support block */
 		for (i = 0; i < 4; i++) {
-			b = this.get(dirs[i]);
+			b = this.nbhood[dirs[i]];
 			if (typeof b !== 'undefined' && (b.type === 'wire' || (b.type === 'solid' && dirs[i] === this.dir))) {
-				b.setChargeFrom('button', nb.revkey(dirs[i]), charge);
+				b.setChargeFrom('button', this.nbhood.reverse(dirs[i]), charge);
 			}
 		}
 		
@@ -93,21 +89,14 @@ function(Block, cst) {
 		return this.charge;
 	};
 	
-	ButtonBlock.prototype.onWorldChanged = function(coords) {
-		var block;
-
+	ButtonBlock.prototype.onNeighboursChanged = function(key, block) {
 		/* Request removal if the block we're attached to was removed */
-		if (nb.equals(coords, nb.add(this.coords, sourcecoords[this.dir]))) {
-			block = this.world.get(coords);
-			if (typeof block !== 'undefined' && block.type !== 'solid') {
-				return true;
-			}
+		if (typeof block === 'undefined' && key === this.dir) {
+			throw "Should remove here";
 		}
 		
 		/* Set current charge again to propagate to new elements */
 		this.setCharge(this.charge);
-
-		return false;
 	};
 
 	ButtonBlock.prototype.onRemove = function() {
@@ -117,7 +106,7 @@ function(Block, cst) {
 		}
 	};
 	
-	ButtonBlock.prototype.onClick = function() {
+	ButtonBlock.prototype.onClicked = function() {
 		this.remaining = cst.buttonTicks;
 		this.setCharge(cst.maxCharge);
 		
@@ -138,7 +127,7 @@ function(Block, cst) {
 	ButtonBlock.prototype.serialize = function () {
 		return {
 			args: {dir: this.dir},
-			dep: nb.add(this.coords, sourcecoords[this.dir])
+			dep: sourceKeys[this.dir]
 		};
 	}
 	
