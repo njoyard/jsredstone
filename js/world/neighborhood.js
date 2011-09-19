@@ -162,15 +162,20 @@ function(signals) {
 	Neighborhood.prototype.unbindAll = function() {
 		var keys = this.NEIGHBOUR_KEYS,
 			len = keys.length,
-			i, rkey;
+			callbacks = [],
+			i, rkey, block;
 			
 		for (i = 0; i < len; i++) {
 			if (typeof this[keys[i]] !== 'undefined') {
-				this.remove(keys[i]);
+				block = this[keys[i]];
 				rkey = this.reverse(keys[i]);
-				this[keys[i]].nbhood.remove(rkey);
+				
+				callbacks.push(this.remove(keys[i], true));
+				callbacks.push(block.nbhood.remove(rkey, true));
 			}
 		}
+		
+		callbacks.forEach(function(c) { c(); });
 	};
 	
 	return Neighborhood;
