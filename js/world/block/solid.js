@@ -18,8 +18,7 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 
 define(['world/block/block'],
 function(Block) {
-	var SolidBlock,
-		nb = Block.NB;
+	var SolidBlock;
 
 	SolidBlock = function (world, coords) {
 		SolidBlock.baseCtor.call(this, world, coords);
@@ -44,8 +43,7 @@ function(Block) {
 	};
 
 	SolidBlock.prototype.setChargeFrom = function (type, source, charge) {
-		var // tstr = Block.NB.str(this.coords),
-			charges = this.charge.charges,
+		var charges = this.charge.charges,
 			s, i, b,
 			dirs = ['n', 's', 'e', 'w', 'u'];
 			
@@ -75,9 +73,9 @@ function(Block) {
 		// Propagate to wires around and above if source type is not wire
 		if (type !== 'wire') {
 			for (i = 0; i < 5; i++) {
-				b = this.get(dirs[i]);
+				b = this.nbhood[dirs[i]];
 				if (typeof b !== 'undefined' && b.type === 'wire') {
-					b.setChargeFrom('solid', nb.revkey(dirs[i]), this.charge.current);
+					b.setChargeFrom('solid', this.nbhood.reverse(dirs[i]), this.charge.current);
 				}
 			}
 		}
