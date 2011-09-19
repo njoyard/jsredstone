@@ -186,7 +186,7 @@ function(Block, cst) {
 			
 		if (source !== me.cursource && b.type === 'wire' && (charge + 1) < (me.curcharge - 1)) {
 			// receiving power from a less powered part, send back our charge
-			b.setChargeFrom('wire', nb.revkey(source), me.curcharge - 1);
+			b.setChargeFrom('wire', this.nbhood.reverse(source), me.curcharge - 1);
 			return;
 		}
 		
