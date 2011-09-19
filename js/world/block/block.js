@@ -32,12 +32,10 @@ function (Neighborhood, signals) {
 		
 		/* Dispatched when the HTML element representing this block is ready */
 		this.createdElement = new signals.Signal();
+		this.createdElement.addOnce(this.setClass, this);
 		
 		/* Dispatched when the element is clicked */
 		this.clicked = new signals.Signal();
-		
-		this.element = undefined;
-		this.cssclass = undefined;
 	};
 
 	Block.prototype.type = 'block';
@@ -54,20 +52,24 @@ function (Neighborhood, signals) {
 	Block.prototype.setChargeFrom = function (type, relkey, charge) {
 	};
 
-	/* Set block class. Call with cls=undefined to set initial class */
+	/* Set block CSS class. If called before element is created, class is stored
+	   until setClass is called again with cls = undefined */
 	Block.prototype.setClass = function(cls) {
-		var i, len, cl;
-
+		var cl;
+		
 		if (typeof this.element === 'undefined') {
 			this.cssclass = cls;
 		} else {
 			cl = this.element.classList;
-			if (typeof cls === 'undefined' && typeof this.cssclass !== undefined) {
-				cl.remove('B_empty');
-				cl.add('B_' + this.cssclass);
+			if (typeof cls === 'undefined') {
+				if (typeof this.cssclass !== 'undefined') {
+					cl.add('B_' + this.cssclass);
+				}
 			} else {
-				cl.remove('B_' + this.cssclass);
-				cl.add('B_' + cls)
+				if (typeof this.cssclass !== 'undefined') {
+					cl.remove('B_' + this.cssclass);
+				}
+				cl.add('B_' + cls);
 				this.cssclass = cls;
 			}
 		}
