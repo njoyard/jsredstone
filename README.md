@@ -11,6 +11,8 @@ Launching
 
 To launch JSRedstone, just download a copy of it on your computer and open `jsredstone.html` with your favorite browser. Of course you will need to have Javascript enabled.
 
+Note: due to a [Chrome/Chromium bug](http://code.google.com/p/chromium/issues/detail?id=49001), this won't work when accessing it with the `file:` protocol. You'll have to host it on a web server for these browsers.
+
 License
 -------
 
