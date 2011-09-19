@@ -36,11 +36,21 @@ function (Neighborhood, signals) {
 		/* Dispatched when the element is clicked */
 		this.clicked = new signals.Signal();
 		
+		// On element created: set CSS class
 		this.createdElement.addOnce(this.setClass, this);
+		
+		// On element created: set onclick listener
 		this.createdElement.addOnce(function() {
 			var block = this;
 			this.element.addEventListener('click', function() {	block.clicked.dispatch(); });
 		}, this);
+		
+		// On removal: remove element (low priority - execute last)
+		this.removed.addOnce(function() {
+			if (this.element && this.element.parentNode) {
+				this.element.parentNode.removeChild(this.element);
+			}
+		}, this, -100);
 	};
 
 	Block.prototype.type = 'block';

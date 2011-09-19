@@ -253,11 +253,12 @@ function(cst) {
 			var world = gui.world,
 				block = world.get(coords);
 				
-			if (typeof block === 'undefine') {
-				throw "No block to remove"
+			if (typeof block === 'undefined') {
+				throw "No block to remove";
 			}
 			
 			world.unset(coords);
+			block.removed.dispatch();
 			updateMaxes(coords, true);
 		};
 		
