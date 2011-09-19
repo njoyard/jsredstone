@@ -52,7 +52,7 @@ function(Block, cst) {
 			}
 
 			/* Wire or torch downwards and no block above it */
-			b1 = nbhood['d'] + dir;
+			b1 = nbhood['d' + dir];
 			b2 = nbhood[dir];
 			if ((typeof b1 !== 'undefined' && (b1.type === 'wire' || b1.type === 'torch')) &&
 				(typeof b2 === 'undefined')) {
@@ -219,6 +219,7 @@ function(Block, cst) {
 		for (c in conns) {
 			if (conns.hasOwnProperty(c)) {
 				conn = conns[c] + c; // Concatenate level and direction
+				
 				if (typeof me.cursource === 'undefined' || conn !== me.cursource) {
 					b = this.nbhood[conn];
 					if (typeof b !== 'undefined' && (b.type === 'wire' || b.type === 'solid')) {
@@ -242,6 +243,7 @@ function(Block, cst) {
 			/* Update connections */
 			this.connections = getConnections(this.nbhood);
 			this.updateClass();
+			this.propagateCharge();
 		}
 	};
 	
