@@ -232,6 +232,8 @@ function(cst) {
 			
 			/* Create world block */
 			block = new blockClass(world, coords, args);
+			block.requestedRemoval.addOnce(function() { removeBlock(coords); });
+			
 			world.set(coords, block);
 			updateMaxes(coords);
 			

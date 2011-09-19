@@ -99,7 +99,7 @@ function (Block, cst) {
 	RepeaterBlock.prototype.onNeighboursChanged = function(key, block) {
 		/* Request removal if block below was removed */
 		if (typeof block === 'undefined' && key === 'd') {
-			throw "Should remove here";
+			this.requestedRemoval.dispatch();
 		}
 	};
 	

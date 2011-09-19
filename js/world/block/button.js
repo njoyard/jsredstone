@@ -92,11 +92,11 @@ function(Block, cst) {
 	ButtonBlock.prototype.onNeighboursChanged = function(key, block) {
 		/* Request removal if the block we're attached to was removed */
 		if (typeof block === 'undefined' && key === this.dir) {
-			throw "Should remove here";
+			this.requestedRemoval.dispatch();
+		} else {
+			/* Set current charge again to propagate to new elements */
+			this.setCharge(this.charge);
 		}
-		
-		/* Set current charge again to propagate to new elements */
-		this.setCharge(this.charge);
 	};
 
 	ButtonBlock.prototype.onRemove = function() {
@@ -127,7 +127,7 @@ function(Block, cst) {
 	ButtonBlock.prototype.serialize = function () {
 		return {
 			args: {dir: this.dir},
-			dep: sourceKeys[this.dir]
+			dep: this.dir
 		};
 	}
 	

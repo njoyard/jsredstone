@@ -27,6 +27,9 @@ function (Neighborhood, signals) {
 		/* Neighbours helper */
 		this.nbhood = new Neighborhood(this);
 		
+		/* Dispatched when the block requests its own removal */
+		this.requestedRemoval = new signals.Signal();
+		
 		/* Dispatched when the block is removed from the world */
 		this.removed = new signals.Signal();
 		

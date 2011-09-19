@@ -116,13 +116,11 @@ function (Block, cst) {
 
 		/* Request removal if the block we're attached to was removed */
 		if (typeof block === 'undefined' && key === sourceKeys[this.dir]) {
-			throw "Should remove here";
+			this.requestedRemoval.dispatch();
+		} else {
+			/* Set current charge again to propagate to new elements */
+			this.setCharge(this.charge);
 		}
-		
-		/* Set current charge again to propagate to new elements */
-		this.setCharge(this.charge);
-
-		return false;
 	};
 
 	TorchBlock.prototype.onRemove = function() {

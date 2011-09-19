@@ -237,12 +237,12 @@ function(Block, cst) {
 	WireBlock.prototype.onNeighboursChanged = function(key, block) {
 		/* Request removal if block below was removed */
 		if (key === 'd' && typeof block === 'undefined') {
-			throw "Should remove here !";
+			this.requestedRemoval.dispatch();
+		} else {
+			/* Update connections */
+			this.connections = getConnections(this.nbhood);
+			this.updateClass();
 		}
-		
-		/* Update connections */
-		this.connections = getConnections(this.nbhood);
-		this.updateClass();
 	};
 	
 	WireBlock.prototype.onRemove = function() {
