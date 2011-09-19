@@ -18,8 +18,7 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 
 define(['world/block/block', 'util/const'],
 function (Block, cst) {
-	var RepeaterBlock,
-		nb = Block.NB;
+	var RepeaterBlock;
 
 	RepeaterBlock = function (world, coords, args) {
 		RepeaterBlock.baseCtor.call(this, world, coords);
@@ -31,10 +30,12 @@ function (Block, cst) {
 		this.setDirection(args.dir);
 		
 		this.tickBinding = world.ticked.add(this.onTick.bind(this));
+		this.nbhood.added.add(this.onNeighboursChanged, this);
+		this.nbhood.removed.add(this.onNeighboursChanged, this);
 	};
 	RepeaterBlock.inherit(Block);
 
-	RepeaterBlock.type = 'repeater';
+	RepeaterBlock.prototype.type = 'repeater';
 
 	RepeaterBlock.tryPlace = function(neighbours, mouse) {
 		var coords = neighbours.coords,
@@ -74,7 +75,7 @@ function (Block, cst) {
 		
 		// Send charge to block in front of repeater
 		if (typeof b !== 'undefined') {
-			b.setChargeFrom('repeater', nb.revkey(this.dir), this.charge);
+			b.setChargeFrom('repeater', this.rdir, this.charge);
 		}
 	};
 
@@ -94,18 +95,11 @@ function (Block, cst) {
 		return dir === this.dir ? this.charge : 0;
 	};
 	
-	RepeaterBlock.prototype.onWorldChanged = function(coords) {
-		var block;
-		
+	RepeaterBlock.prototype.onNeighboursChanged = function(key, block) {
 		/* Request removal if block below was removed */
-		if (nb.equals(coords, nb.add(this.coords, nb.d))) {
-			block = this.world.get(coords);
-			if (typeof block !== 'undefined' && block.type !== 'solid') {
-				return true;
-			}
+		if (typeof block === 'undefined' && key === 'd') {
+			throw "Should remove here";
 		}
-		
-		return false;
 	};
 	
 	RepeaterBlock.prototype.onRemove = function() {
@@ -138,7 +132,7 @@ function (Block, cst) {
 	RepeaterBlock.prototype.serialize = function() {
 		return {
 			args: {delay: this.delay, dir: this.dir},
-			dep: nb.d
+			dep: 'd'
 		};
 	};
 
