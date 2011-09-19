@@ -165,9 +165,11 @@ body, textarea {
 }
 
 
-.vblock.place {
-	background-position: -160px -96px;
+.vblock.remove {
+	background: red;
+	opacity: 0.5;
 }
+
 /* Dialogs */
 
 .loadsave_bg {
