@@ -100,39 +100,62 @@ function(signals) {
 		}
 	};
 	
-	/* Add a neighbour */
-	Neighborhood.prototype.add = function(key, block) {
+	/* Add neighbour block
+		key: cardinal position
+		block: new neighbour block
+		delay: if true, the added signal is not dispatched; instead a callback to dispatch it is returned.
+	 */
+	Neighborhood.prototype.add = function(key, block, delay) {
 		if (typeof this[key] !== 'undefined') {
 			throw "Cannot redefine neighbour";
 		}
 		
 		this[key] = block;
-		this.added.dispatch(key, block);
+		
+		if (delay) {
+			return (function() {
+				this.added.dispatch(key, block);
+			}).bind(this);
+		} else {
+			this.added.dispatch(key, block);
+		}
 	}
 	
-	/* Remove a neighbour */
-	Neighborhood.prototype.remove = function(key) {
+	/* Remove a neighbour 
+		key: cardinal position
+		delay: if true, the removed signal is not dispatched; instead a callback to dispatch it is returned.
+	 */
+	Neighborhood.prototype.remove = function(key, delay) {
 		if (typeof this[key] === 'undefined') {
 			throw "Cannot remove undefined neighbour";
 		}
 		
 		delete this[key];
-		this.removed.dispatch(key);
+		if (delay) {
+			return (function() {
+				this.removed.dispatch(key);
+			}).bind(this);
+		} else {
+			this.removed.dispatch(key);
+		}
 	}
 	
 	/* Associate neighbour blocks */
 	Neighborhood.prototype.bindAll = function(blocks) {
-		var block, key, rkey;
+		var block, key, rkey,
+			callbacks = [];
 		
 		for (key in blocks) {
 			if (blocks.hasOwnProperty(key) && key !== 'coords') {
 				block = blocks[key];
 				rkey = this.reverse(key);
 				
-				this.add(key, block);
-				block.nbhood.add(rkey, this.block);
+				callbacks.push(this.add(key, block, true));
+				callbacks.push(block.nbhood.add(rkey, this.block, true));
 			}
 		}
+		
+		callbacks.forEach(function(c) { c(); });
 	};
 	
 	/* Unbind all neighbours (to be called on block removal) */
