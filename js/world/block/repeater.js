@@ -32,6 +32,7 @@ function (Block, cst) {
 		this.tickBinding = world.ticked.add(this.onTick.bind(this));
 		this.nbhood.added.add(this.onNeighboursChanged, this);
 		this.nbhood.removed.add(this.onNeighboursChanged, this);
+		this.clicked.add(this.onClicked, this);
 	};
 	RepeaterBlock.inherit(Block);
 
@@ -107,7 +108,7 @@ function (Block, cst) {
 		this.tickBinding.detach();
 	};
 	
-	RepeaterBlock.prototype.onClick = function() {
+	RepeaterBlock.prototype.onClicked = function() {
 		this.setDelay(this.delay == 4 ? 1 : this.delay + 1);
 	};
 	

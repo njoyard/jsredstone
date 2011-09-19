@@ -32,10 +32,15 @@ function (Neighborhood, signals) {
 		
 		/* Dispatched when the HTML element representing this block is ready */
 		this.createdElement = new signals.Signal();
-		this.createdElement.addOnce(this.setClass, this);
 		
 		/* Dispatched when the element is clicked */
 		this.clicked = new signals.Signal();
+		
+		this.createdElement.addOnce(this.setClass, this);
+		this.createdElement.addOnce(function() {
+			var block = this;
+			this.element.addEventListener('click', function() {	block.clicked.dispatch(); });
+		}, this);
 	};
 
 	Block.prototype.type = 'block';
