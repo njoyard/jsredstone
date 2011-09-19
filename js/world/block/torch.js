@@ -18,9 +18,9 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 
 define(['world/block/block', 'util/const'],
 function (Block, cst) {
-	var TorchBlock, sourcecoords, affectedcoords;
+	var TorchBlock, sourceKeys, affectedKeys;
 
-	sourcecoords = {
+	sourceKeys = {
 		n: 'n',
 		s: 's',
 		e: 'e',
@@ -29,8 +29,8 @@ function (Block, cst) {
 	};
 
 	/* Affected block coordinates depending on torch direction
-		**WARNING** block above (NB.u) must stay at index 0 */
-	affectedcoords = {
+		**WARNING** block above (u) must stay at index 0 */
+	affectedKeys = {
 		n: ['u', 's', 'e', 'w'],
 		s: ['u', 'n', 'e', 'w'],
 		e: ['u', 'n', 's', 'w'],
@@ -46,11 +46,14 @@ function (Block, cst) {
 		this.setDirection(args.dir);
 		
 		this.sourceCharge = 0;
+		
 		this.tickBinding = world.ticked.add(this.onTick.bind(this), this);
+		this.nbhood.added.add(this.onNeighboursChanged, this);
+		this.nbhood.removed.add(this.onNeighboursChanged, this);
 	};
 	TorchBlock.inherit(Block);
 
-	TorchBlock.type = 'torch';
+	TorchBlock.prototype.type = 'torch';
 
 	TorchBlock.tryPlace = function(nbhood, mouse) {
 		var dir, block, retval;
@@ -86,11 +89,11 @@ function (Block, cst) {
 		var i, len, b, ac;
 
 		/* Update affected blocks */
-		for (i = 0, len = affectedcoords[this.dir].length; i < len; i++) {
-			ac = affectedcoords[this.dir][i];
-			b = this.get(nb[ac]);
+		for (i = 0, len = affectedKeys[this.dir].length; i < len; i++) {
+			ac = affectedKeys[this.dir][i];
+			b = this.nbhood[ac];
 			if (typeof b !== 'undefined' && ((b.type === 'solid' && i === 0) || b.type === 'wire')) {
-				b.setChargeFrom('torch', nb.revkey(ac), charge);
+				b.setChargeFrom('torch', this.nbhood.reverse(ac), charge);
 			}
 		}
 
@@ -108,15 +111,12 @@ function (Block, cst) {
 		this.setCharge(cst.maxCharge);
 	};
 
-	TorchBlock.prototype.onWorldChanged = function(coords) {
+	TorchBlock.prototype.onNeighboursChanged = function(coords, block) {
 		var block;
 
 		/* Request removal if the block we're attached to was removed */
-		if (nb.equals(coords, nb.add(this.coords, sourcecoords[this.dir]))) {
-			block = this.world.get(coords);
-			if (typeof block !== 'undefined' && block.type !== 'solid') {
-				return true;
-			}
+		if (typeof block === 'undefined' && key === sourceKeys[this.dir]) {
+			throw "Should remove here";
 		}
 		
 		/* Set current charge again to propagate to new elements */
@@ -137,7 +137,7 @@ function (Block, cst) {
 		this.setCharge(this.sourceCharge > 0 ? 0 : cst.maxCharge);
 
 		/* Measure charge of source block and store it for next tick */
-		b = this.get(sourcecoords[this.dir]);
+		b = this.nbhood[sourceKeys[this.dir]];
 		if (typeof b !== 'undefined') {
 			this.sourceCharge = b.getChargeFrom(this.coords);
 		} else {
@@ -148,7 +148,7 @@ function (Block, cst) {
 	TorchBlock.prototype.serialize = function() {
 		return {
 			args: { dir: this.dir },
-			dep: nb.add(this.coords, sourcecoords[this.dir])
+			dep: sourceKeys[this.dir]
 		}
 	};
 
