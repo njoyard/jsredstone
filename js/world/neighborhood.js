@@ -163,15 +163,11 @@ function(signals) {
 		var keys = this.NEIGHBOUR_KEYS,
 			len = keys.length,
 			callbacks = [],
-			i, rkey, block;
+			i;
 			
 		for (i = 0; i < len; i++) {
 			if (typeof this[keys[i]] !== 'undefined') {
-				block = this[keys[i]];
-				rkey = this.reverse(keys[i]);
-				
 				callbacks.push(this.remove(keys[i], true));
-				callbacks.push(block.nbhood.remove(rkey, true));
 			}
 		}
 		
