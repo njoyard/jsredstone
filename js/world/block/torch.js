@@ -111,7 +111,7 @@ function (Block, cst) {
 		this.setCharge(cst.maxCharge);
 	};
 
-	TorchBlock.prototype.onNeighboursChanged = function(coords, block) {
+	TorchBlock.prototype.onNeighboursChanged = function(key, block) {
 		var block;
 
 		/* Request removal if the block we're attached to was removed */
