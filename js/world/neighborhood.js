@@ -158,7 +158,7 @@ function(signals) {
 		callbacks.forEach(function(c) { c(); });
 	};
 	
-	/* Unbind all neighbours (to be called on block removal) */
+	/* Unbind from all neighbours (to be called on block removal) */
 	Neighborhood.prototype.unbindAll = function() {
 		var keys = this.NEIGHBOUR_KEYS,
 			len = keys.length,
@@ -167,7 +167,7 @@ function(signals) {
 			
 		for (i = 0; i < len; i++) {
 			if (typeof this[keys[i]] !== 'undefined') {
-				callbacks.push(this.remove(keys[i], true));
+				callbacks.push(this[keys[i]].nbhood.remove(this.reverse(keys[i], true)));
 			}
 		}
 		
