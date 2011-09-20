@@ -184,9 +184,11 @@ function(Block, cst) {
 			return;
 		}
 			
-		if (source !== me.cursource && b.type === 'wire' && (charge + 1) < (me.curcharge - 1)) {
+		if (source !== me.cursource && (charge + 1) < (me.curcharge - 1)) {
 			// receiving power from a less powered part, send back our charge
-			b.setChargeFrom('wire', this.nbhood.reverse(source), me.curcharge - 1);
+			if (typeof b !== 'undefined' && b.type === 'wire') {
+				b.setChargeFrom('wire', this.nbhood.reverse(source), me.curcharge - 1);
+			}
 			return;
 		}
 		
@@ -247,7 +249,9 @@ function(Block, cst) {
 			// Lost supporting block
 			this.requestedRemoval.dispatch();
 		} else {
-			this.setChargeFrom(key, 0);
+			this.connections = getConnections(this.nbhood);
+			this.updateClass();
+			this.setChargeFrom('removed', key, 0);
 		}
 	};
 	
