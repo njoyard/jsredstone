@@ -50,6 +50,7 @@ function (Block, cst) {
 		this.tickBinding = world.ticked.add(this.onTick.bind(this), this);
 		this.nbhood.added.add(this.onNeighbourAdded, this);
 		this.nbhood.removed.add(this.onNeighbourRemoved, this);
+		this.removed.add(this.onRemoved, this);
 	};
 	TorchBlock.inherit(Block);
 
@@ -123,13 +124,18 @@ function (Block, cst) {
 		}
 	};
 
-	TorchBlock.prototype.onRemove = function() {
-		this.setCharge(0);
+	TorchBlock.prototype.onRemoved = function() {
+		this.removing = true;
 		this.tickBinding.detach();
 	};
 		
 	TorchBlock.prototype.onTick = function(tickcount) {
 		var b;
+		
+		/* Do not tick when removing */
+		if (this.removing) {
+			return;
+		}
 
 		/* Invert charge measured on previous tick */
 		this.setCharge(this.sourceCharge > 0 ? 0 : cst.maxCharge);
