@@ -259,8 +259,8 @@ function(cst) {
 				throw "No block to remove";
 			}
 			
-			world.unset(coords);
 			block.removed.dispatch();
+			world.unset(coords);
 			updateMaxes(coords, true);
 		};
 		
