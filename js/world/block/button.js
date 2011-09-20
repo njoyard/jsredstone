@@ -27,8 +27,8 @@ function(Block, cst) {
 		this.setDirection(args.dir);
 		this.setCharge(0);
 		
-		this.nbhood.added.add(this.onNeighboursChanged, this);
-		this.nbhood.removed.add(this.onNeighboursChanged, this);
+		this.nbhood.added.add(this.onNeighbourAdded, this);
+		this.nbhood.removed.add(this.onNeighbourRemoved, this);
 		this.clicked.add(this.onClicked, this);
 	};
 	ButtonBlock.inherit(Block);
@@ -89,13 +89,15 @@ function(Block, cst) {
 		return this.charge;
 	};
 	
-	ButtonBlock.prototype.onNeighboursChanged = function(key, block) {
-		/* Request removal if the block we're attached to was removed */
-		if (typeof block === 'undefined' && key === this.dir) {
+	ButtonBlock.prototype.onNeighbourAdded = function(key, block) {
+		/* Set current charge again to propagate to new block */
+		this.setCharge(this.charge);
+	};
+	
+	ButtonBlock.prototype.onNeighbourRemoved = function(key) {
+		if (key === this.dir) {
+			// Lost supporting block
 			this.requestedRemoval.dispatch();
-		} else {
-			/* Set current charge again to propagate to new elements */
-			this.setCharge(this.charge);
 		}
 	};
 

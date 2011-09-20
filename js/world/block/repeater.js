@@ -30,8 +30,7 @@ function (Block, cst) {
 		this.setDirection(args.dir);
 		
 		this.tickBinding = world.ticked.add(this.onTick.bind(this));
-		this.nbhood.added.add(this.onNeighboursChanged, this);
-		this.nbhood.removed.add(this.onNeighboursChanged, this);
+		this.nbhood.removed.add(this.onNeighbourRemoved, this);
 		this.clicked.add(this.onClicked, this);
 	};
 	RepeaterBlock.inherit(Block);
@@ -96,9 +95,9 @@ function (Block, cst) {
 		return dir === this.dir ? this.charge : 0;
 	};
 	
-	RepeaterBlock.prototype.onNeighboursChanged = function(key, block) {
-		/* Request removal if block below was removed */
-		if (typeof block === 'undefined' && key === 'd') {
+	RepeaterBlock.prototype.onNeighbourRemoved = function(key) {
+		if (key === 'd') {
+			// Lost supporting block
 			this.requestedRemoval.dispatch();
 		}
 	};

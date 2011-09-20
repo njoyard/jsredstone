@@ -48,8 +48,8 @@ function (Block, cst) {
 		this.sourceCharge = 0;
 		
 		this.tickBinding = world.ticked.add(this.onTick.bind(this), this);
-		this.nbhood.added.add(this.onNeighboursChanged, this);
-		this.nbhood.removed.add(this.onNeighboursChanged, this);
+		this.nbhood.added.add(this.onNeighbourAdded, this);
+		this.nbhood.removed.add(this.onNeighbourRemoved, this);
 	};
 	TorchBlock.inherit(Block);
 
@@ -111,15 +111,15 @@ function (Block, cst) {
 		this.setCharge(cst.maxCharge);
 	};
 
-	TorchBlock.prototype.onNeighboursChanged = function(key, block) {
-		var block;
+	TorchBlock.prototype.onNeighbourAdded = function(key, block) {
+		/* Propagate to new block */
+		this.setCharge(this.charge);
+	};
 
-		/* Request removal if the block we're attached to was removed */
-		if (typeof block === 'undefined' && key === sourceKeys[this.dir]) {
+	TorchBlock.prototype.onNeighbourRemoved = function(key) {
+		if (key === sourceKeys[this.dir]) {
+			// Lost supporting block
 			this.requestedRemoval.dispatch();
-		} else {
-			/* Set current charge again to propagate to new elements */
-			this.setCharge(this.charge);
 		}
 	};
 

@@ -123,8 +123,8 @@ function(Block, cst) {
 		
 		this.connections = {};
 		
-		this.nbhood.added.add(this.onNeighboursChanged, this);
-		this.nbhood.removed.add(this.onNeighboursChanged, this);
+		this.nbhood.added.add(this.onNeighbourAdded, this);
+		this.nbhood.removed.add(this.onNeighbourRemoved, this);
 		this.createdElement.add(this.onElementCreated, this);
 	};
 	WireBlock.inherit(Block);
@@ -235,36 +235,20 @@ function(Block, cst) {
 		}
 	};
 	
-	WireBlock.prototype.onNeighboursChanged = function(key, block) {
-		/* Request removal if block below was removed */
-		if (key === 'd' && typeof block === 'undefined') {
-			this.requestedRemoval.dispatch();
-		} else {
-			/* Update connections */
-			this.connections = getConnections(this.nbhood);
-			this.updateClass();
-			this.propagateCharge();
-		}
+	WireBlock.prototype.onNeighbourAdded = function(key, block) {
+		/* Update connections */
+		this.connections = getConnections(this.nbhood);
+		this.updateClass();
+		this.propagateCharge();
 	};
 	
-	WireBlock.prototype.onRemove = function() {
-		var i, me = this.charge;
-		
-		if (typeof this.ovl.offsetParent !== 'undefined') {
-			this.ovl.offsetParent.removeChild(this.ovl);
+	WireBlock.prototype.onNeighbourRemoved = function(key) {
+		if (key === 'd') {
+			// Lost supporting block
+			this.requestedRemoval.dispatch();
+		} else {
+			this.setChargeFrom(key, 0);
 		}
-		
-		
-		if (typeof this.clabel.offsetParent !== 'undefined') {
-			this.clabel.offsetParent.removeChild(this.clabel);
-		}
-		
-		this.removing = true;
-		
-		// Remove charge and propagate it
-		me.curcharge = 0;
-		me.cursource = undefined;
-		this.propagateCharge();
 	};
 	
 	WireBlock.prototype.serialize = function() {
