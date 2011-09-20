@@ -40,6 +40,6 @@ function() {
 		},
 		
 		// Misc
-		versionString: "JSRedstone 0.2"
+		versionString: "JSRedstone 0.4"
 	};
 });
