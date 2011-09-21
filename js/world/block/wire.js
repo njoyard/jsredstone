@@ -184,11 +184,14 @@ function(Block, cst) {
 			return;
 		}
 			
-		if (source !== me.cursource && (charge + 1) < (me.curcharge - 1)) {
-			// receiving power from a less powered part, send back our charge
-			if (typeof b !== 'undefined' && b.type === 'wire') {
-				b.setChargeFrom('wire', this.nbhood.reverse(source), me.curcharge - 1);
-			}
+		if ((type === 'wire' && source !== me.cursource && (charge + 1) < (me.curcharge - 1)) ||
+			(type === 'solid' && source !== me.cursource && charge < me.curcharge - 1)) {
+			// Received power from a wire or a solid block that will be more powered from us
+			b.setChargeFrom('wire', this.nbhood.reverse(source), me.curcharge - 1);
+		}
+		
+		if (source !== me.cursource && charge <= me.curcharge) {
+			// Received less or as much power as we already have
 			return;
 		}
 		
