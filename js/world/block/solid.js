@@ -16,17 +16,20 @@ You should have received a copy of the GNU General Public License
 along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-define(['world/block/block'],
-function(Block) {
+define(['world/block/block', 'util/const'],
+function(Block, cst) {
 	var SolidBlock;
 
 	SolidBlock = function (world, coords) {
 		SolidBlock.baseCtor.call(this, world, coords);
 		this.cssclass = 'solid';
+		
 		this.charge = {
-			current: 0,
-			cursource: undefined,
-			charges: {}
+			strong: 0,
+			weak: 0,
+			strongsrc: [],
+			weaksrc: undefined,
+			isstrong: false
 		};
 	};
 	SolidBlock.inherit(Block);
@@ -38,47 +41,59 @@ function(Block) {
 		return { css: 'solid', args: {} };
 	};
 
-	SolidBlock.prototype.getChargeFrom = function (relkey) {
-		return this.charge.current;
+	SolidBlock.prototype.getChargeFrom = function (key) {
+		var me = this.charge;
+		return me.strong > 0 ? me.strong : me.weak;
 	};
 
 	SolidBlock.prototype.setChargeFrom = function (type, source, charge) {
-		var charges = this.charge.charges,
-			s, i, b,
-			dirs = ['n', 's', 'e', 'w', 'u'];
+		var me = this.charge,
+			dirs = ['u', 'n', 's', 'e', 'w'],
+			strong = (type !== 'wire'),
+			idx;
 			
-		// Update input charges
-		if (charge > 0) {
-			charges[source] = charge;
+		if (typeof this.removing !== 'undefined') {
+			// Ignore charges received when removing
+			return;
+		}
+		
+		if (strong) {
+			idx = me.strongsrc.indexOf(source);
+			if (charge < me.strong && idx !== -1) {
+				// Strong source removed
+				me.strongsrc.splice(idx, 1);
+				if (me.strongsrc.length === 0) {
+					me.strong = 0;
+				}
+			} else if (charge > 0 && idx === -1) {
+				// New strong source
+				me.strongsrc.push(source);
+				me.strong = cst.maxCharge;
+			}
 		} else {
-			delete charges[source];
-		}
-		
-		// Update resulting charges
-		if (charge > this.charge.current) {
-			this.charge.current = charge;
-			this.charge.cursource = source;
-		} else if (charge < this.charge.current && source === this.charge.cursource) {
-			this.charge.current = 0;
-			this.charge.cursource = undefined;
-			for (s in charges) {
-				if (charges.hasOwnProperty(s) && charges[s] > this.charge.current) {
-					this.charge.current = charges[s]
-					this.charge.cursource = s;
-				}
+			if (me.strong > 0) {
+				// Strong source is always stronger
+				this.nbhood[source].setChargeFrom('solid', this.nbhood.reverse(source), me.strong);
 			}
-			// console.log(tstr + " new charge " + this.charge.current + " from " + this.charge.cursource);
-		}
-		
-		// Propagate to wires around and above if source type is not wire
-		if (type !== 'wire') {
-			for (i = 0; i < 5; i++) {
-				b = this.nbhood[dirs[i]];
-				if (typeof b !== 'undefined' && b.type === 'wire') {
-					b.setChargeFrom('solid', this.nbhood.reverse(dirs[i]), this.charge.current);
-				}
+			
+			// Update weak charge
+			if (charge > me.weak) {
+				me.weak = charge;
+				me.weaksrc = source;
+			} else if (source === me.weaksrc) {
+				me.weak = 0;
+				me.weaksrc = undefined;
 			}
 		}
+		
+		// Propagate strong charge to wires around and above
+		dirs.forEach((function(dir) {
+			var b = this.nbhood[dir];
+			
+			if (typeof b !== 'undefined' && b.type === 'wire') {
+				b.setChargeFrom('solid', this.nbhood.reverse(dir), me.strong);
+			}
+		}).bind(this));
 	};
 	
 	SolidBlock.prototype.serialize = function() {
