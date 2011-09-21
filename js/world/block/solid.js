@@ -31,6 +31,8 @@ function(Block, cst) {
 			weaksrc: undefined,
 			isstrong: false
 		};
+		
+		this.nbhood.removed.add(this.onNeighbourRemoved, this);
 	};
 	SolidBlock.inherit(Block);
 
@@ -43,7 +45,7 @@ function(Block, cst) {
 
 	SolidBlock.prototype.getChargeFrom = function (key) {
 		var me = this.charge;
-		return me.strong > 0 ? me.strong : me.weak;
+		return (me.strong > 0 ? me.strong : me.weak);
 	};
 
 	SolidBlock.prototype.setChargeFrom = function (type, source, charge) {
@@ -94,6 +96,14 @@ function(Block, cst) {
 				b.setChargeFrom('solid', this.nbhood.reverse(dir), me.strong);
 			}
 		}).bind(this));
+	};
+	
+	SolidBlock.prototype.onNeighbourRemoved = function(key) {
+		if (this.charge.strongsrc.indexOf(key) !== -1) {
+			this.setChargeFrom('remove', key, 0);
+		} else if (this.charge.weaksrc === key) {
+			this.setChargeFrom('wire', key, 0);
+		}
 	};
 	
 	SolidBlock.prototype.serialize = function() {
