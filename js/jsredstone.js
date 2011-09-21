@@ -16,59 +16,20 @@ You should have received a copy of the GNU General Public License
 along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-var JSR;
-if (typeof JSR === 'undefined') {
-	JSR = (function() {
-		var protoDef,
-			interfaces,
-			slice = Array.prototype.slice;
+var JSR = {
+	/* If true, show block details in console when clicked */
+	blockDebug: true
+};
 
-
-		/* Prototype enhancement helper */
-		protoDef = function (ctor, properties) {
-			var prop;
-
-			for (prop in properties) {
-				if (properties.hasOwnProperty(prop) &&
-					typeof ctor.prototype[prop] === 'undefined') {
-					ctor.prototype[prop] = properties[prop];
-				}
-			}
-		};
-
-
-		/*
-		 * Functional utilities
-		 */
-
-		protoDef(Function, {
-			bind: function (thisVal) {
-				var fn = this,
-					args = slice.call(arguments, 1);
-				return function() {
-					return fn.apply(thisVal, args.concat(slice.call(arguments)));
-				};
-			},
-
-			inherit: (function () {
-				var F = function () {};
-				return function(P) {
-					F.prototype = P.prototype;
-					this.prototype = new F();
-					this.baseCtor = P;
-					this.base = P.prototype;
-					this.prototype.constructor = this;
-				};
-			})(),
-
-			method: function (name, func) {
-				this.prototype[name] = func;
-				return this;
-			}
-		});
-
-		return {
-			protoDef: protoDef
+if (typeof Function.prototype.inherit === 'undefined') {
+	Function.prototype.inherit =  (function () {
+		var F = function () {};
+		return function(P) {
+			F.prototype = P.prototype;
+			this.prototype = new F();
+			this.baseCtor = P;
+			this.base = P.prototype;
+			this.prototype.constructor = this;
 		};
 	})();
 }
@@ -80,6 +41,9 @@ function (Gui, World) {
 			gui = new Gui(world);
 
 		gui.render();
+		
+		JSR.world = world;
+		JSR.gui = gui;
 	});
 });
 

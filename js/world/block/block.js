@@ -54,6 +54,13 @@ function (Neighborhood, signals) {
 				this.element.parentNode.removeChild(this.element);
 			}
 		}, this, -100);
+		
+		if (JSR && JSR.blockDebug) {
+			this.clicked.addOnce(function() {
+				JSR.lastBlock = this;
+				console.dir(this);
+			}, this, -100);
+		}
 	};
 
 	Block.prototype.type = 'block';
