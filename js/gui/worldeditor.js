@@ -522,7 +522,7 @@ function(cst, storage, blocks) {
 			savedWorld = [];
 		
 			saveBlock = function(x, y, z) {
-				var block, b;
+				var block, b, db;
 				
 				if (vworld[z] && vworld[z][y] && vworld[z][y][x]) {
 					// Block already saved
@@ -540,16 +540,24 @@ function(cst, storage, blocks) {
 						vworld[z][y][x] = true;
 				
 						// Save block dependency first
-						if (typeof b.dep !== 'undefined') {
-							saveBlock(b.dep.x, b.dep.y, b.dep.z);
+						if (typeof b.dep !== 'undefined' && typeof block.nbhood[b.dep] !== 'undefined') {
+							db = block.nbhood[b.dep];
+							saveBlock(db.coords.x, db.coords.y, db.coords.z);
 						}
 			
 						// Save block
-						savedWorld.push([
-							x, y, z,
-							block.type.substring(0, 2),
-							b.args
-						});
+						if (typeof b.args !== 'undefined' && b.args != null) {
+							savedWorld.push([
+								x, y, z,
+								block.type.substring(0, 2),
+								b.args
+							]);
+						} else {
+							savedWorld.push([
+								x, y, z,
+								block.type.substring(0, 2)
+							]);
+						}
 					}
 				}
 			};
@@ -601,7 +609,7 @@ function(cst, storage, blocks) {
 				};
 			
 				// Restore blocks
-				stateobj.w.foreach(function(b) {
+				stateobj.w.forEach(function(b) {
 					var coords = { x: b[0], y: b[1], z: b[2] },
 						blockClass = blocks.abbr[b[3]],
 						args = b[4];

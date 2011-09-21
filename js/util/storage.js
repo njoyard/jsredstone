@@ -21,80 +21,19 @@ function(blocks, cst) {
 	var storage = {};
 	
 	storage.getWorldString = function(gui) {
-		var block, b, sb, world,
-			gworld = gui.world,
-			vworld = {},
-			X, Y, Z, saveBlock;
-			
-		world = {
-			x: gworld.size.width,
-			y: gworld.size.height,
-			z: gworld.size.depth,
-			b: []
-		};
-		
-		saveBlock = function(x, y, z) {
-			var block, b;
-				
-			if (vworld[z] && vworld[z][y] && vworld[z][y][x]) {
-				// Block already saved
-				return; 
-			}
-			
-			block = gworld.get({x:x, y:y, z:z});
-			if (typeof block !== 'undefined') {
-				b = block.serialize();
-				
-				if (typeof b !== 'undefined') {
-					// Remember we saved this block
-					vworld[z] = vworld[z] || {};
-					vworld[z][y] = vworld[z][y] || {};
-					vworld[z][y][x] = true;
-				
-					// Save block dependency first
-					if (typeof b.dep !== 'undefined') {
-						saveBlock(b.dep.x, b.dep.y, b.dep.z);
-					}
-			
-					// Save block
-					world.b.push({
-						t: block.type.substring(0, 2),
-						p: block.coords,
-						a: b.args
-					});
-				}
-			}
-		};
-		
-		for (Z = 0; Z < gworld.size.depth; Z++) {
-			for (Y = 0; Y < gworld.size.height; Y++) {
-				for (X = 0; X < gworld.size.width; X++) {
-					saveBlock(X, Y, Z);
-				}
-			}
-		}
-
-		// Remove quotes
-		return JSON.stringify(world).replace(/"/g, '');
+		var state = gui.we.saveState();
+		return JSON.stringify(state).replace(/"/g, '');
 	};
 	
-	storage.restoreWorld = function(gui, worldstring) {
-		var ws, world;
+	storage.restoreWorld = function(gui, statestring) {
+		var state;
 		
 		// Restore quotes
-		ws = worldstring.replace(/([a-zA-Z_][a-zA-Z0-9_]*):/g, '"$1":').replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, ':"$1"');
-		world = JSON.parse(ws).b
-		
-		// TODO restore world size
-		gui.we.clearWorld();
-		for (i = 0, len = world.length; i < len; i++) {
-			gui.we.addBlock(
-				undefined,
-				world[i].p,
-				blocks.abbr[world[i].t],
-				world[i].a
-			);
-		}
+		ss = statestring.
+			replace(/([a-zA-Z_][a-zA-Z0-9_]*):/g, '"$1":').
+			replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, ':"$1"').
+			replace(/,([a-zA-Z_][a-zA-Z0-9_]*)/g, ',"$1"');;
+		gui.we.restoreState(JSON.parse(ss));
 	};
 	
 	storage.getSavedWorlds = function() {
