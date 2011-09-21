@@ -113,8 +113,12 @@ function (Block, cst) {
 	};
 
 	TorchBlock.prototype.onNeighbourAdded = function(key, block) {
-		/* Propagate to new block */
-		this.setCharge(this.charge);
+		if (affectedKeys[this.dir].indexOf(key) !== -1) {
+			if ((block.type === 'solid' && key === 'u') || block.type === 'wire') {
+				/* Propagate to new neighbour */
+				block.setChargeFrom('torch', this.nbhood.reverse(key), this.charge);
+			}
+		}
 	};
 
 	TorchBlock.prototype.onNeighbourRemoved = function(key) {
