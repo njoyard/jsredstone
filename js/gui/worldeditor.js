@@ -16,15 +16,16 @@ You should have received a copy of the GNU General Public License
 along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-define(['util/const'],
-function(cst) {
+define(['util/const', 'util/storage', 'world/blocks'],
+function(cst, storage, blocks) {
 	return function(gui) {
 		var elements, state, worldEditor = {},
 			getMouseZones, moveViewport,
 			findMouseAction, performMouseAction,
 			setVBlock, removeVBlock,
 			addBlock, removeBlock, updateMaxes,
-			mouseDown, mouseUp, mouseMove, mouseWheel;
+			mouseDown, mouseUp, mouseMove, mouseWheel,
+			saveState, restoreState;
 		
 		state = {
 			level: 0,
@@ -505,6 +506,112 @@ function(cst) {
 				
 				state.level = level;
 				findMouseAction();
+			}
+		};
+		
+		
+		/* Returns an object representing current editor state (incl. world) that can be restored
+			with restoreState later */
+		worldEditor.saveState = function() {
+			var savedWorld,
+				world = gui.world,
+				vworld = {},
+				X, Y, Z, saveBlock,
+				bZ, bZY;
+			
+			savedWorld = [];
+		
+			saveBlock = function(x, y, z) {
+				var block, b;
+				
+				if (vworld[z] && vworld[z][y] && vworld[z][y][x]) {
+					// Block already saved
+					return; 
+				}
+			
+				block = world.get({ x:x, y:y, z:z });
+				if (typeof block !== 'undefined') {
+					b = block.serialize();
+				
+					if (typeof b !== 'undefined') {
+						// Remember we saved this block
+						vworld[z] = vworld[z] || {};
+						vworld[z][y] = vworld[z][y] || {};
+						vworld[z][y][x] = true;
+				
+						// Save block dependency first
+						if (typeof b.dep !== 'undefined') {
+							saveBlock(b.dep.x, b.dep.y, b.dep.z);
+						}
+			
+						// Save block
+						savedWorld.push([
+							x, y, z,
+							block.type.substring(0, 2),
+							b.args
+						});
+					}
+				}
+			};
+			
+			for (Z in world.blocks) {
+				if (world.blocks.hasOwnProperty(Z)) {
+					bZ = world.blocks[Z];
+					for (Y in bZ) {
+						if (bZ.hasOwnProperty(Y)) {
+							bZY = bZ[Y];
+							for (X in bZY) {
+								if (bZY.hasOwnProperty(X)) {
+									saveBlock(X, Y, Z);
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			return {
+				v: 2,
+				l: state.level,
+				x: state.left,
+				y: state.top,
+				w: savedWorld
+			};
+		};
+		
+		
+		/* Restores editor state as returned by saveState */
+		worldEditor.restoreState = function(stateobj) {
+			if (stateobj.v === 2) {
+				// Empty world
+				gui.world.empty().forEach(function(e) {
+					if (e.parentNode) {
+						e.parentNode.removeChild(e);
+					}
+				});
+				
+				// Reset maxes
+				state.maxes = {
+					x: {},
+					y: {},
+					maxX: -Infinity,
+					minX: Infinity,
+					maxY: -Infinity,
+					minY: Infinity
+				};
+			
+				// Restore blocks
+				stateobj.w.foreach(function(b) {
+					var coords = { x: b[0], y: b[1], z: b[2] },
+						blockClass = blocks.abbr[b[3]],
+						args = b[4];
+						
+					addBlock(coords, blockClass, args);
+				});
+				
+				// Restore level and panning
+				this.setLevel(stateobj.l);
+				moveViewport(stateobj.x, stateobj.y);
 			}
 		};
 		

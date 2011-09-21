@@ -28,6 +28,32 @@ function (Neighborhood, signals) {
 		this.ticked = new signals.Signal();
 	};
 	
+	/* Empty world and return elements */
+	World.prototype.empty = function() {
+		var bz, bzy, x, y, z, elements = [];
+		
+		for (z in this.blocks) {
+			if (this.blocks.hasOwnProperty(z)) {
+				bz = this.blocks[z];
+				for (y in bz) {
+					if (bz.hasOwnProperty(y)) {
+						bzy = bz[y];
+						for (x in bzy) {
+							if (bzy.hasOwnProperty(x)) {
+								elements.push(bzy[x].element);
+								delete bzy[x];
+							}
+						}
+						delete bz[y];
+					}
+				}
+				delete this.blocks[z];
+			}
+		}
+		
+		return elements;
+	};
+	
 	/* World block getter */
 	World.prototype.get = function(coords) {
 		if (typeof this.blocks[coords.z] === 'undefined') {
