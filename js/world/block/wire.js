@@ -198,7 +198,7 @@ function(Block, cst) {
 			me.cursource = source;
 		} else if (source === me.cursource && charge < me.curcharge) {
 			// current source lowers its input
-			me.curcharge = charge
+			me.curcharge = charge;
 			me.cursource = charge == 0 ? undefined : source;
 		} else {
 			return;
