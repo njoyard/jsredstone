@@ -51,6 +51,7 @@ function(blocks, tools, worldeditor, loadsave, cst) {
 		
 		/* One-shot tools */
 		if (toolid === 'newtool') {
+			this.we.newWorld();
 			return;
 		} else if (toolid === 'loadtool') {
 			loadsave.showload(this);
@@ -180,6 +181,13 @@ function(blocks, tools, worldeditor, loadsave, cst) {
 	Gui.prototype.startTicking = function() {
 		if (typeof this.tickInterval === 'undefined') {
 			this.tickInterval = window.setInterval(this.world.tick.bind(this.world), cst.tickTime);
+		}
+	};
+	
+	Gui.prototype.stopTicking = function() {
+		if (typeof this.tickInterval !== 'undefined') {
+			window.clearInterval(this.tickInterval);
+			delete this.tickInterval;
 		}
 	};
 

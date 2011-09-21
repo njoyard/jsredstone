@@ -374,7 +374,7 @@ function(cst, storage, blocks) {
 		
 		/* Mouse move handler */
 		mouseMove = function(e) {
-			if (state.mouse.button && state.tool.type === 'pan') {
+			if (state.mouse.button && (state.tool.type === 'pan' || e.button === 1)) {
 				moveViewport(e.clientX - state.pan.prevX, e.clientY - state.pan.prevY, true);
 				state.pan.prevX = e.clientX;
 				state.pan.prevY = e.clientY;
@@ -394,7 +394,7 @@ function(cst, storage, blocks) {
 		mouseDown = function(e) {
 			state.mouse.button = true;
 			
-			if (state.tool.type === 'pan') {
+			if (state.tool.type === 'pan' || e.button === 1) {
 				state.pan = {
 					prevX: e.clientX,
 					prevY: e.clientY
@@ -411,7 +411,7 @@ function(cst, storage, blocks) {
 		mouseUp = function(e) {
 			state.mouse.button = false;
 			
-			if (state.tool.type === 'pan') {
+			if (state.tool.type === 'pan' || e.button === 1) {
 				delete state.pan;
 			}
 		};
@@ -591,6 +591,9 @@ function(cst, storage, blocks) {
 		/* Restores editor state as returned by saveState */
 		worldEditor.restoreState = function(stateobj) {
 			if (stateobj.v === 2) {
+				// Stop world ticks
+				gui.stopTicking();
+				
 				// Empty world
 				gui.world.empty().forEach(function(e) {
 					if (e.parentNode) {
@@ -620,10 +623,39 @@ function(cst, storage, blocks) {
 				// Restore level and panning
 				this.setLevel(stateobj.l);
 				moveViewport(stateobj.x, stateobj.y);
+				
+				// Mark world as not edited
+				gui.world.edited = false;
+				
+				// Restart ticking
+				gui.startTicking();
 			}
+		};
+		
+		
+		/* Starts a new world */
+		worldEditor.newWorld = function() {
+			// Stop world ticks
+			gui.stopTicking();
+			
+			// Empty world
+			gui.world.empty().forEach(function(e) {
+				if (e.parentNode) {
+					e.parentNode.removeChild(e);
+				}
+			});
+			
+			// Reset level and panning
+			this.setLevel(0);
+			moveViewport(0, 0);
+			
+			// Mark world as not edited
+			gui.world.edited = false;
+				
+			// Restart ticking
+			gui.startTicking();
 		};
 		
 		return worldEditor;
 	};
 });
-
