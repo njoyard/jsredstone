@@ -73,11 +73,6 @@ function(Block, cst) {
 				me.strong = cst.maxCharge;
 			}
 		} else {
-			if (me.strong > 0) {
-				// Strong source is always stronger
-				this.nbhood[source].setChargeFrom('solid', this.nbhood.reverse(source), me.strong);
-			}
-			
 			// Update weak charge
 			if (charge > me.weak) {
 				me.weak = charge;
@@ -92,7 +87,12 @@ function(Block, cst) {
 		dirs.forEach((function(dir) {
 			var b = this.nbhood[dir];
 			
-			if (typeof b !== 'undefined' && b.type === 'wire') {
+			if (typeof b === 'undefined' || b.type !== 'wire') {
+				return;
+			}
+			
+			// Propagate to calling source/current weak source only if strong charge is bigger than what they sent
+			if ((dir !== source || me.strong > charge) && (dir !== me.weaksrc || me.strong > me.weak)) {
 				b.setChargeFrom('solid', this.nbhood.reverse(dir), me.strong);
 			}
 		}).bind(this));
