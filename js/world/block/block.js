@@ -56,7 +56,7 @@ function (Neighborhood, signals) {
 		}, this, -100);
 		
 		if (JSR && JSR.blockDebug) {
-			this.clicked.addOnce(function() {
+			this.clicked.add(function() {
 				JSR.lastBlock = this;
 				console.dir(this);
 			}, this, -100);
