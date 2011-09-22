@@ -23,6 +23,7 @@ function(blocks, lang) {
 		loadtool:	{ title: lang.tools.load, key: 'A-O' },
 		savetool:	{ title: lang.tools.save, key: 'A-S' },
 		pantool:	{ title: lang.tools.pan, key: 'P', editor: { type: 'pan' } },
+		undotool:   { key: 'A-Z', editor: { type: 'undo' } },
 		shovel:		{ title: lang.tools.erase, key: 'E', editor: { type: 'erase' } },
 		solidtool:	{ title: lang.tools.solid, key: 'S', editor: { type: 'place', placeClass: blocks.Solid } },
 		rstool:		{ title: lang.tools.wire, key: 'W', editor: { type: 'place', placeClass: blocks.Wire } },

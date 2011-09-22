@@ -41,7 +41,9 @@ function(cst, storage, blocks) {
 				minX: Infinity,
 				maxY: -Infinity,
 				minY: Infinity
-			}
+			},
+			undo: [],
+			undoing: false
 		};
 		
 		elements = { levels: [] };
@@ -248,21 +250,38 @@ function(cst, storage, blocks) {
 			
 			block.element = e;
 			block.createdElement.dispatch();
+			
+			if (!state.undoing) {
+				state.undo.push(function() {
+					removeBlock(coords);
+				});
+			}
 		};
 		
 		
 		/* Remove a block */
 		removeBlock = function(coords) {
 			var world = gui.world,
-				block = world.get(coords);
+				block = world.get(coords),
+				blockargs,
+				blockclass;
 				
 			if (typeof block === 'undefined') {
 				throw "No block to remove";
 			}
 			
+			blockargs = block.serialize().args;
+			blockclass = block.constructor;
+			
 			block.removed.dispatch();
 			world.unset(coords);
 			updateMaxes(coords, true);
+			
+			if (!state.undoing) {
+				state.undo.push(function() {
+					addBlock(coords, blockclass, blockargs);
+				});
+			}
 		};
 		
 		
@@ -466,7 +485,18 @@ function(cst, storage, blocks) {
 		
 		/* Set editor tool */
 		worldEditor.setTool = function(tool) {
+			var undofunc;
+			
 			switch(tool.type) {
+				case 'undo':
+					undofunc = state.undo.pop();
+					if (typeof undofunc !== 'undefined') {
+						state.undoing = true;
+						undofunc();
+						state.undoing = false;
+					}
+					return;
+					
 				case 'place':
 					elements.viewport.style.cursor = 'crosshair';
 					break;
@@ -623,6 +653,9 @@ function(cst, storage, blocks) {
 				// Restore level and panning
 				this.setLevel(stateobj.l);
 				moveViewport(stateobj.x, stateobj.y);
+			
+				// Reset undo history
+				state.undo = [];
 				
 				// Mark world as not edited
 				gui.world.edited = false;
@@ -648,6 +681,9 @@ function(cst, storage, blocks) {
 			// Reset level and panning
 			this.setLevel(0);
 			moveViewport(0, 0);
+			
+			// Reset undo history
+			state.undo = [];
 			
 			// Mark world as not edited
 			gui.world.edited = false;

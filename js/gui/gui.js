@@ -75,17 +75,19 @@ function(blocks, tools, worldeditor, loadsave, cst, lang) {
 			loadsave.showsave(this);
 			return;
 		} else if (typeof tools[toolid].editor !== 'undefined') {
-			/* Deactivate previous tool */
-			toolelem = document.getElementById(this.curTool);
-			if (toolelem && toolelem.bg) {
-				toolelem.bg.classList.remove('selected');
-			}
+			if (typeof tools[toolid].title !== 'undefined') {
+				/* Deactivate previous tool */
+				toolelem = document.getElementById(this.curTool);
+				if (toolelem && toolelem.bg) {
+					toolelem.bg.classList.remove('selected');
+				}
 
-			/* Activate new tool */
-			toolelem = document.getElementById(toolid);
-			if (toolelem && toolelem.bg) {
-				toolelem.bg.classList.add('selected');
-				this.curTool = toolid;
+				/* Activate new tool */
+				toolelem = document.getElementById(toolid);
+				if (toolelem && toolelem.bg) {
+					toolelem.bg.classList.add('selected');
+					this.curTool = toolid;
+				}
 			}
 			
 			this.we.setTool(tools[toolid].editor);
@@ -135,36 +137,39 @@ function(blocks, tools, worldeditor, loadsave, cst, lang) {
 		for (t in tools) {
 			if (tools.hasOwnProperty(t)) {
 				tdef = tools[t];
-			
-				tool = document.createElement('div');
-				tool.id = t;
-				tool.title = tdef.title;
-				tool.classList.add('tool');
-				tool.classList.add(t);
-				tool.addEventListener('click', function() { toolchange(this.id); });
 				
-				tool.style.top = '6px';
-				tool.style.left = (6 + 40*ntools) + 'px';
+				// Only create toolbar elements for tools with a 'title' attribute
+				if (typeof tdef.title !== 'undefined') {
+					tool = document.createElement('div');
+					tool.id = t;
+					tool.title = tdef.title;
+					tool.classList.add('tool');
+					tool.classList.add(t);
+					tool.addEventListener('click', function() { toolchange(this.id); });
 				
-				if (typeof tdef.editor !== 'undefined') {
-					tbg = document.createElement('div');
-					tbg.classList.add('toolbg');
-					tbg.style.top = '8px';
-					tbg.style.left = (8 + 40*ntools) + 'px';
+					tool.style.top = '6px';
+					tool.style.left = (6 + 40*ntools) + 'px';
+				
+					if (typeof tdef.editor !== 'undefined') {
+						tbg = document.createElement('div');
+						tbg.classList.add('toolbg');
+						tbg.style.top = '8px';
+						tbg.style.left = (8 + 40*ntools) + 'px';
 					
-					tb.appendChild(tbg);
-					tool.bg = tbg;
+						tb.appendChild(tbg);
+						tool.bg = tbg;
 					
-					if (tdef.editor.type === 'place') {
-						tlabel = document.createElement('span');
-						tlabel.classList.add('toollabel');
-						tool.appendChild(tlabel);
-						tdef.editor.placeClass.countLabel = tlabel;
+						if (tdef.editor.type === 'place') {
+							tlabel = document.createElement('span');
+							tlabel.classList.add('toollabel');
+							tool.appendChild(tlabel);
+							tdef.editor.placeClass.countLabel = tlabel;
+						}
 					}
-				}
 				
-				tb.appendChild(tool);
-				ntools++;
+					tb.appendChild(tool);
+					ntools++;
+				}
 			}
 		}
 		
