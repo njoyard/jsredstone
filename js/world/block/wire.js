@@ -64,7 +64,7 @@ function(Block, cst) {
 		}
 		
 		// If only one connection is found, add a connection at the other end
-		if (cnt == 1) {
+		if (cnt === 1) {
 			switch(only) {
 			case 'n':
 				out['s'] = '';
@@ -79,6 +79,11 @@ function(Block, cst) {
 				out['e'] = '';
 				break;
 			}
+		}
+		
+		// If no connection is found, add all 4 connections
+		if (cnt === 0) {
+			out = { n: '', s: '', e: '', w: '' };
 		}
 		
 		return out;
@@ -213,6 +218,14 @@ function(Block, cst) {
 	
 	WireBlock.prototype.getChargeFrom = function(dir) {
 		return this.charge.curcharge;
+	};
+	
+	WireBlock.prototype.isConnectedTo = function(dir) {
+		if (dir === 'd') {
+			return true;
+		} else {
+			return (typeof this.connections[dir] !== 'undefined');
+		}
 	};
 	
 	// Propagate charge to connections except current source, and to block below

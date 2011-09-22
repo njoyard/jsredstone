@@ -50,9 +50,15 @@ function(Block, cst) {
 		} else {
 			// Look for charge from connected wires
 			me.wires.forEach((function(key) {
-				var charge = this.nbhood[key].getChargeFrom(this.nbhood.reverse(key));
-				if (charge > weak) {
-					weak = charge;
+				var wire = this.nbhood[key],
+					rkey = this.nbhood.reverse(key),
+					charge;
+					
+				if (wire.isConnectedTo(rkey)) {
+					charge = wire.getChargeFrom(rkey)
+					if (charge > weak) {
+						weak = charge;
+					}
 				}
 			}).bind(this));
 			
@@ -90,7 +96,12 @@ function(Block, cst) {
 			if (prevstrong != me.strong) {
 				// Send new strong charge to connected wires
 				me.wires.forEach((function(key) {
-					this.nbhood[key].setChargeFrom('solid', this.nbhood.reverse(key), me.strong);
+					var wire = this.nbhood[key],
+						rkey = this.nbhood.reverse(key);
+						
+					if (wire.isConnectedTo(rkey)) {
+						wire.setChargeFrom('solid', rkey, me.strong);
+					}
 				}).bind(this));
 			}
 		} else {
