@@ -21,8 +21,9 @@ define(
 'gui/tools',
 'gui/worldeditor',
 'gui/loadsave',
-'util/const'],
-function(blocks, tools, worldeditor, loadsave, cst) {
+'util/const',
+'lib/i18n!nls/lang'],
+function(blocks, tools, worldeditor, loadsave, cst, lang) {
 	var Gui;
 
 	/* Ctor */
@@ -32,14 +33,24 @@ function(blocks, tools, worldeditor, loadsave, cst) {
 		this.we = worldeditor(this);
 	};
 	
-	Gui.prototype.keyPress = function(key) {
-		var tid, tool;
+	Gui.prototype.keyPress = function(key, alt) {
+		var tid, tool, toolkey, toolalt;
 		for (tid in tools) {
 			if (tools.hasOwnProperty(tid)) {
 				tool = tools[tid];
-				if (key === tool.key) {
-					this.setTool(tid);
-					return;
+				toolkey = tool.key;
+				if (typeof toolkey !== 'undefined') {					
+					toolalt = false;
+					
+					if (toolkey.indexOf('A-') !== -1) {
+						toolalt = true;
+						toolkey = toolkey.replace(/A-/, '');
+					}
+					
+					if (key === toolkey && toolalt === alt) {
+						this.setTool(tid);
+						return true;
+					}
 				}
 			}
 		}
@@ -51,10 +62,14 @@ function(blocks, tools, worldeditor, loadsave, cst) {
 		
 		/* One-shot tools */
 		if (toolid === 'newtool') {
-			this.we.newWorld();
+			if (!this.world.edited || confirm(lang.loadsave.losechanges)) {
+				this.we.newWorld();
+			}
 			return;
 		} else if (toolid === 'loadtool') {
-			loadsave.showload(this);
+			if (!this.world.edited || confirm(lang.loadsave.losechanges)) {
+				loadsave.showload(this);
+			}
 			return;
 		} else if (toolid === 'savetool') {
 			loadsave.showsave(this);
@@ -85,10 +100,12 @@ function(blocks, tools, worldeditor, loadsave, cst) {
 		this.renderToolbar();
 		
 		keyhandler = (function(e) {
-			var key = String.fromCharCode(e.keyCode).toUpperCase();
-			this.keyPress(key);
+			var key = String.fromCharCode(e.keyCode);
+			if (this.keyPress(key, e.altKey)) {
+				e.preventDefault();
+			}
 		}).bind(this);
-		document.addEventListener('keypress', function(e) { keyhandler(e); });
+		document.addEventListener('keydown', function(e) { keyhandler(e); });
 		
 		this.startTicking();
 	};

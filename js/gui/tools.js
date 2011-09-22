@@ -19,9 +19,9 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 define(['world/blocks', 'lib/i18n!nls/lang'],
 function(blocks, lang) {
 	return {
-		newtool:	{ title: lang.tools.clear },
-		loadtool:	{ title: lang.tools.load },
-		savetool:	{ title: lang.tools.save },
+		newtool:	{ title: lang.tools.clear, key: 'A-N' },
+		loadtool:	{ title: lang.tools.load, key: 'A-O' },
+		savetool:	{ title: lang.tools.save, key: 'A-S' },
 		pantool:	{ title: lang.tools.pan, key: 'P', editor: { type: 'pan' } },
 		shovel:		{ title: lang.tools.erase, key: 'E', editor: { type: 'erase' } },
 		solidtool:	{ title: lang.tools.solid, key: 'S', editor: { type: 'place', placeClass: blocks.Solid } },

@@ -19,10 +19,10 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 define({
 	root: {
 		tools: {
-			clear: "New world",
-			load: "Load World",
-			save: "Save World",
-			pan: "Pan tool (P)",
+			clear: "New world (Alt-N)",
+			load: "Load World (Alt-O)",
+			save: "Save World (Alt-S)",
+			pan: "Pan tool (P or middle mouse button)",
 			erase: "Erase tool (E)",
 			solid: "Solid block (S)",
 			wire: "Redstone wire (W)",
@@ -53,7 +53,8 @@ define({
 			},
 			close: "Close",
 			choose: "- Choose saved world -",
-			newsave: "- New saved world -"
+			newsave: "- New saved world -",
+			losechanges: "Current world has been modified, are you sure you want to lose changes ?"
 		}
 	}/*,
 	'fr': true*/
