@@ -32,6 +32,7 @@ function (Block, cst) {
 		this.tickBinding = world.ticked.add(this.onTick.bind(this));
 		this.nbhood.removed.add(this.onNeighbourRemoved, this);
 		this.clicked.add(this.onClicked, this);
+		this.removed.add(this.onRemoved, this);
 	};
 	RepeaterBlock.inherit(Block);
 
@@ -106,8 +107,7 @@ function (Block, cst) {
 		}
 	};
 	
-	RepeaterBlock.prototype.onRemove = function() {
-		this.setCharge(0);
+	RepeaterBlock.prototype.onRemoved = function() {
 		this.tickBinding.detach();
 	};
 	
