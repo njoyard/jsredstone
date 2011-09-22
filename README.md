@@ -21,6 +21,7 @@ JSRedstone starts with an empty world. The world in JSRedstone is virtually infi
 ### Toolbar items
 
 The toolbar on the bottom includes the following tools:
+
 * New world (Alt-N): erases current world and resets viewport position
 * Load world (Alt-O): opens the load dialog
 * Save world (Alt-S): opens the save dialog
