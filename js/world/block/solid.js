@@ -26,10 +26,8 @@ function(Block, cst) {
 		
 		this.charge = {
 			strong: 0,
-			weak: 0,
 			strongsrc: [],
-			weaksrc: undefined,
-			isstrong: false
+			wires: []
 		};
 		
 		this.nbhood.removed.add(this.onNeighbourRemoved, this);
@@ -44,23 +42,39 @@ function(Block, cst) {
 	};
 
 	SolidBlock.prototype.getChargeFrom = function (key) {
-		var me = this.charge;
+		var me = this.charge,
+			weak = 0;
+		
+		if (me.strong > 0) {
+			return me.strong;
+		} else {
+			// Look for charge from connected wires
+			me.wires.forEach((function(key) {
+				var charge = this.nbhood[key].getChargeFrom(this.nbhood.reverse(key));
+				if (charge > weak) {
+					weak = charge;
+				}
+			}).bind(this));
+			
+			return weak;
+		}
+		
 		return (me.strong > 0 ? me.strong : me.weak);
 	};
 
 	SolidBlock.prototype.setChargeFrom = function (type, source, charge) {
 		var me = this.charge,
-			dirs = ['u', 'n', 's', 'e', 'w'],
-			strong = (type !== 'wire'),
-			idx;
+			idx, prevstrong;
 			
 		if (typeof this.removing !== 'undefined') {
 			// Ignore charges received when removing
 			return;
 		}
 		
-		if (strong) {
+		if (type !== 'wire') {
 			idx = me.strongsrc.indexOf(source);
+			prevstrong = me.strong;
+			
 			if (charge < me.strong && idx !== -1) {
 				// Strong source removed
 				me.strongsrc.splice(idx, 1);
@@ -72,37 +86,31 @@ function(Block, cst) {
 				me.strongsrc.push(source);
 				me.strong = cst.maxCharge;
 			}
+			
+			if (prevstrong != me.strong) {
+				// Send new strong charge to connected wires
+				me.wires.forEach((function(key) {
+					this.nbhood[key].setChargeFrom('solid', this.nbhood.reverse(key), me.strong);
+				}).bind(this));
+			}
 		} else {
-			// Update weak charge
-			if (charge > me.weak) {
-				me.weak = charge;
-				me.weaksrc = source;
-			} else if (source === me.weaksrc) {
-				me.weak = 0;
-				me.weaksrc = undefined;
+			// Just remember connected wires
+			idx = me.wires.indexOf(source);
+			if (idx === -1) {
+				// New connection: send strong charge
+				me.wires.push(source);
+				this.nbhood[source].setChargeFrom('solid', this.nbhood.reverse(source), me.strong);
 			}
 		}
-		
-		// Propagate strong charge to wires around and above
-		dirs.forEach((function(dir) {
-			var b = this.nbhood[dir];
-			
-			if (typeof b === 'undefined' || b.type !== 'wire') {
-				return;
-			}
-			
-			// Propagate to calling source/current weak source only if strong charge is bigger than what they sent
-			if ((dir !== source || me.strong > charge) && (dir !== me.weaksrc || me.strong > me.weak)) {
-				b.setChargeFrom('solid', this.nbhood.reverse(dir), me.strong);
-			}
-		}).bind(this));
 	};
 	
 	SolidBlock.prototype.onNeighbourRemoved = function(key) {
-		if (this.charge.strongsrc.indexOf(key) !== -1) {
+		var me = this.charge;
+		
+		if (me.strongsrc.indexOf(key) !== -1) {
 			this.setChargeFrom('remove', key, 0);
-		} else if (this.charge.weaksrc === key) {
-			this.setChargeFrom('wire', key, 0);
+		} else if (me.wires.indexOf(key) !== -1) {
+			me.wires.splice(me.wires.indexOf(key), 1);
 		}
 	};
 	
