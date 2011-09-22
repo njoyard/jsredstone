@@ -112,7 +112,9 @@ function(Block, cst) {
 		this.remaining = cst.buttonTicks;
 		this.setCharge(cst.maxCharge);
 		
-		this.tickBinding = this.world.ticked.add(this.onTick.bind(this));
+		if (typeof this.tickBinding === 'undefined') {
+			this.tickBinding = this.world.ticked.add(this.onTick.bind(this));
+		}
 	};
 		
 	ButtonBlock.prototype.onTick = function(tickcount) {
