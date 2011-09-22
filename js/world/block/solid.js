@@ -77,7 +77,7 @@ function(Block, cst) {
 			return;
 		}
 		
-		if (type !== 'wire') {
+		if (type !== 'wire' && type !== 'repeater') {
 			idx = me.strongsrc.indexOf(source);
 			prevstrong = me.strong;
 			

@@ -90,6 +90,10 @@ function (Block, cst) {
 		this.setCharge(0);
 	};
 	
+	RepeaterBlock.prototype.isConnectedTo = function(dir) {
+		return (dir === this.dir);
+	};
+	
 	RepeaterBlock.prototype.getChargeFrom = function(dir) {
 		// Answer 0 unless block requesting charge is in front of repeater
 		return dir === this.dir ? this.charge : 0;
