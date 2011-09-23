@@ -18,13 +18,15 @@ along with JSRedstone.  If not, see <http://www.gnu.org/licenses/>.
 
 define(
 ['world/block/button',
+'world/block/lever',
 'world/block/repeater',
 'world/block/solid',
 'world/block/torch',
 'world/block/wire'],
-function (bt, r, s, t, w) {
+function (bt, l, r, s, t, w) {
 	return {
 		Button: bt,
+		Lever: l,
 		Repeater: r,
 		Solid: s,
 		Torch: t,
@@ -32,6 +34,7 @@ function (bt, r, s, t, w) {
 		
 		abbr: {
 			bu: bt,
+			le: l,
 			re: r,
 			so: s,
 			to: t,

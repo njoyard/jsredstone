@@ -29,6 +29,7 @@ function(blocks, lang) {
 		rstool:		{ title: lang.tools.wire, key: 'W', editor: { type: 'place', placeClass: blocks.Wire } },
 		torchtool:	{ title: lang.tools.torch, key: 'T', editor: { type: 'place', placeClass: blocks.Torch } },
 		reptool:	{ title: lang.tools.repeater, key: 'R', editor: { type: 'place', placeClass: blocks.Repeater } },
-		buttontool:	{ title: lang.tools.button, key: 'B', editor: { type: 'place', placeClass: blocks.Button } }
+		buttontool:	{ title: lang.tools.button, key: 'B', editor: { type: 'place', placeClass: blocks.Button } },
+		levertool:	{ title: lang.tools.lever, key: 'L', editor: { type: 'place', placeClass: blocks.Lever } }
 	};
 });

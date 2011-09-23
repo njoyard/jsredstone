@@ -28,7 +28,8 @@ define({
 			wire: "Redstone wire (W)",
 			torch: "Redstone torch (T)",
 			repeater: "Redstone repeater (R)",
-			button: "Button (B)"
+			button: "Button (B)",
+			lever: "Lever (L)"
 		},
 		
 		loadsave: {

@@ -260,6 +260,7 @@ body, textarea {
 .selecttool		{ background-position: -288px -96px; }
 .probetool 		{ background-position: -320px -96px; }
 .pantool 		{ background-position: -320px -160px; }
+.levertool 		{ background-position: -320px -192px; }
 
 /* Redstone wire */
 .B_rson_ew		{ background-position: 0 0; }
