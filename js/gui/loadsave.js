@@ -41,9 +41,6 @@ function(lang, storage, sprintf) {
 		e.style.display = 'none';
 		elements.box = e;
 		
-		/* Prevent keydown propagating up to the document */
-		elements.box.addEventListener('keydown', function(e) { e.stopPropagation(); });
-		
 		boxcreate = function(tag, container) {
 			container = container || 'box';
 			return elements[container].appendChild(document.createElement(tag));
@@ -88,6 +85,11 @@ function(lang, storage, sprintf) {
 		e.classList.add('close');
 		e.addEventListener('click', hide);
 		elements.closebtn = e;
+		
+		/* Events */
+		
+		// Prevent keydown propagating up to the document
+		elements.box.addEventListener('keydown', function(e) { e.stopPropagation(); });
 		
 		document.body.appendChild(elements.box);
 	};
@@ -217,6 +219,9 @@ function(lang, storage, sprintf) {
 		elements.textarea.innerText = state.worldcode;
 		state.mode = 'save';
 		state.gui = gui;
+		
+		elements.textarea.focus();
+		elements.textarea.select();
 	};
 	
 	loadsave.showload = function(gui) {
@@ -229,6 +234,8 @@ function(lang, storage, sprintf) {
 		elements.textarea.innerText = '';
 		state.mode = 'load';
 		state.gui = gui;
+		
+		elements.textarea.focus();
 	};
 	
 	return loadsave;
