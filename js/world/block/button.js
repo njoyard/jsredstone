@@ -30,6 +30,7 @@ function(Block, cst) {
 		this.nbhood.added.add(this.onNeighbourAdded, this);
 		this.nbhood.removed.add(this.onNeighbourRemoved, this);
 		this.clicked.add(this.onClicked, this);
+		this.removed.add(this.onRemoved, this);
 	};
 	ButtonBlock.inherit(Block);
 	ButtonBlock.prototype.type = 'button';
@@ -90,8 +91,14 @@ function(Block, cst) {
 	};
 	
 	ButtonBlock.prototype.onNeighbourAdded = function(key, block) {
-		/* Set current charge again to propagate to new block */
-		this.setCharge(this.charge);
+		var dirs = ['n', 's', 'e', 'w'];
+		
+		/* Propagate to new block */
+		if (dirs.indexOf(key) !== -1) {
+			if (block.type === 'wire' || (block.type === 'solid' && key === this.dir)) {
+				block.setChargeFrom('button', this.nbhood.reverse(key), this.charge);
+			}
+		}
 	};
 	
 	ButtonBlock.prototype.onNeighbourRemoved = function(key) {
@@ -101,8 +108,7 @@ function(Block, cst) {
 		}
 	};
 
-	ButtonBlock.prototype.onRemove = function() {
-		this.setCharge(0);
+	ButtonBlock.prototype.onRemoved = function() {
 		if (typeof this.tickBinding !== 'undefined') {
 			this.tickBinding.detach();
 		}
@@ -114,7 +120,7 @@ function(Block, cst) {
 		
 		if (typeof this.tickBinding === 'undefined') {
 			this.tickBinding = this.world.ticked.add(this.onTick.bind(this));
-		}
+		}d
 	};
 		
 	ButtonBlock.prototype.onTick = function(tickcount) {
