@@ -120,7 +120,7 @@ function(Block, cst) {
 		
 		if (typeof this.tickBinding === 'undefined') {
 			this.tickBinding = this.world.ticked.add(this.onTick.bind(this));
-		}d
+		}
 	};
 		
 	ButtonBlock.prototype.onTick = function(tickcount) {
