@@ -32,16 +32,17 @@ The toolbar on the bottom includes the following tools:
 * Torch (T): place redstone torches
 * Repeater (R): place redstone repeaters
 * Button (B): place buttons
+* Lever (L): place levers
 
 ### Placing blocks
 
 When a block placing tool is selected, moving the mouse over the world shows where blocks can be added. Please note that blocks can only be added in the current editing level (change levels with the mouse wheel). Click to add a block.
 
-Torches, buttons and repeaters are placed depending on the exact mouse position when clicked.
+Torches, buttons, levers and repeaters are placed depending on the exact mouse position when clicked.
 
 ### Removing blocks
 
-You can remove blocks using the shovel tool. When it is selected, moving the mouse over a removable block will make it turn red; click to actually remove it. Note that attached blocks (wire, torches, buttons) will be removed as well.
+You can remove blocks using the shovel tool. When it is selected, moving the mouse over a removable block will make it turn red; click to actually remove it. Note that attached blocks (wire, torches, buttons, levers) will be removed as well.
 
 ### Loading/Saving worlds
 
