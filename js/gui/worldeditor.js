@@ -250,6 +250,7 @@ function(cst, storage, blocks) {
 			
 			block.element = e;
 			block.createdElement.dispatch();
+			blockClass.placed.dispatch(1);
 			
 			if (!state.undoing) {
 				state.undo.push(function() {
@@ -276,6 +277,7 @@ function(cst, storage, blocks) {
 			block.removed.dispatch();
 			world.unset(coords);
 			updateMaxes(coords, true);
+			blockclass.placed.dispatch(-1);
 			
 			if (!state.undoing) {
 				state.undo.push(function() {
@@ -640,6 +642,9 @@ function(cst, storage, blocks) {
 					maxY: -Infinity,
 					minY: Infinity
 				};
+				
+				// Reset GUI
+				gui.resetted.dispatch();
 			
 				// Restore blocks
 				stateobj.w.forEach(function(b) {
@@ -681,6 +686,9 @@ function(cst, storage, blocks) {
 			// Reset level and panning
 			this.setLevel(0);
 			moveViewport(0, 0);
+				
+			// Reset GUI
+			gui.resetted.dispatch();
 			
 			// Reset undo history
 			state.undo = [];

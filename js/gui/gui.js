@@ -22,8 +22,9 @@ define(
 'gui/worldeditor',
 'gui/loadsave',
 'util/const',
+'lib/signals',
 'lib/i18n!nls/lang'],
-function(blocks, tools, worldeditor, loadsave, cst, lang) {
+function(blocks, tools, worldeditor, loadsave, cst, signals, lang) {
 	var Gui;
 
 	/* Ctor */
@@ -31,6 +32,7 @@ function(blocks, tools, worldeditor, loadsave, cst, lang) {
 		this.world = world;
 		this.world.gui = this;
 		this.we = worldeditor(this);
+		this.resetted = new signals.Signal();
 	};
 	
 	Gui.prototype.keyPress = function(key, alt) {
@@ -115,6 +117,7 @@ function(blocks, tools, worldeditor, loadsave, cst, lang) {
 	/* Render toolbar elements */
 	Gui.prototype.renderToolbar = function() {
 		var tb, tool, toolchange, t, tdef, tbg, tlabel,
+			labelSignal, resetSignal,
 			ntools = 0;
 		
 		// Create toolbar and corners
@@ -163,7 +166,25 @@ function(blocks, tools, worldeditor, loadsave, cst, lang) {
 							tlabel = document.createElement('span');
 							tlabel.classList.add('toollabel');
 							tool.appendChild(tlabel);
-							tdef.editor.placeClass.countLabel = tlabel;
+							
+							labelSignal = new signals.Signal();
+							labelSignal.add(function(inc) {
+								var val = parseInt(this.innerText);
+								if (isNaN(val)) {
+									val = 0;
+								}
+								
+								val += inc;
+								
+								if (val < 1) {
+									this.innerText = '';
+								} else {
+									this.innerText = val;
+								}
+							}, tlabel);
+							
+							tdef.editor.placeClass.placed = labelSignal;
+							this.resetted.add(function() { this.innerText = ''; }, tlabel);
 						}
 					}
 				
