@@ -347,6 +347,19 @@ body, textarea {
 .B_buton_e		{ background-position: -288px -160px; }
 .B_buton_w		{ background-position: -288px -224px; }
 
+/* Lever */
+.B_levon_c		{ background-position: 0 -256px; }
+.B_levon_e		{ background-position: -32px -256px; }
+.B_levon_w		{ background-position: -64px -256px; }
+.B_levon_n		{ background-position: -96px -256px; }
+.B_levon_s		{ background-position: -128px -256px; }
+
+.B_levoff_c		{ background-position: 0 -288px; }
+.B_levoff_e		{ background-position: -32px -288px; }
+.B_levoff_w		{ background-position: -64px -288px; }
+.B_levoff_n		{ background-position: -96px -288px; }
+.B_levoff_s		{ background-position: -128px -288px; }
+
 /* Misc */
 .B_solid		{ background-position: -160px -64px; }
 .B_remove		{
