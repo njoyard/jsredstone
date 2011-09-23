@@ -126,7 +126,7 @@ function (Block, cst) {
 	
 	LeverBlock.prototype.serialize = function() {
 		return {
-			args: { dir: this.dir, on: this.charge > 0 },
+			args: { dir: this.dir, on: this.charge > 0 ? 1 : 0},
 			dep: sourceKeys[this.dir]
 		}
 	};
