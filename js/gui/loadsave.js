@@ -41,6 +41,9 @@ function(lang, storage, sprintf) {
 		e.style.display = 'none';
 		elements.box = e;
 		
+		/* Prevent keydown propagating up to the document */
+		elements.box.addEventListener('keydown', function(e) { e.stopPropagation(); });
+		
 		boxcreate = function(tag, container) {
 			container = container || 'box';
 			return elements[container].appendChild(document.createElement(tag));
