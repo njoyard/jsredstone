@@ -132,6 +132,33 @@ body, textarea {
 	opacity: 0.5;
 }
 
+.arrow {
+	position: absolute;
+	display: none;
+	background: url(img/textures.png) 0 0 no-repeat;
+	width: 32px;
+	height: 32px;
+}
+
+.arrow.visible {
+	display: block;
+}
+
+.arrow_n, .arrow_s {
+	left: 50%;
+	margin-left: -16px;
+}
+
+.arrow_e, .arrow_w {
+	top: 50%;
+	margin-top: -16px;
+}
+
+.arrow_n { top: 0; }
+.arrow_s { bottom: 44px; }
+.arrow_w { left: 0; }
+.arrow_e { right: 0; }
+
 .vpitem {
 	/* Generic class for viewport items
 		margin-top|left are used to pan the viewport */
@@ -261,6 +288,13 @@ body, textarea {
 .probetool 		{ background-position: -320px -96px; }
 .pantool 		{ background-position: -320px -160px; }
 .levertool 		{ background-position: -320px -192px; }
+
+/* Arrows */
+
+.arrow_w		{ background-position: -160px -256px; }
+.arrow_e		{ background-position: -192px -256px; }
+.arrow_n		{ background-position: -160px -288px; }
+.arrow_s		{ background-position: -192px -288px; }
 
 /* Redstone wire */
 .B_rson_ew		{ background-position: 0 0; }

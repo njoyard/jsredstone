@@ -84,7 +84,9 @@ function(cst, storage, blocks) {
 		
 		/* Move viewport content to (offsetX, offsetY) */
 		moveViewport = function(offsetX, offsetY, relative) {
-			var dss, rules, i, j;
+			var dss, rules, i, j,
+				maxes = state.maxes,
+				arrows = elements.arrows;
 			
 			if (typeof state.vpcRule === 'undefined') {
 				// Find CSS rule to match viewport content
@@ -117,6 +119,31 @@ function(cst, storage, blocks) {
 			state.vpcRule.style.marginTop = offsetY + 'px';
 			elements.viewport.style.backgroundPositionY = offsetY + 'px';
 			elements.xaxis.style.marginTop = offsetY + 'px';
+			
+			/* Arrows */
+			if (-offsetY > (maxes.minY + 1) * cst.blockSize) {
+				arrows.n.classList.add('visible');
+			} else {
+				arrows.n.classList.remove('visible');
+			}
+			
+			if (-offsetX > (maxes.minX + 1) * cst.blockSize) {
+				arrows.w.classList.add('visible');
+			} else {
+				arrows.w.classList.remove('visible');
+			}
+			
+			if (maxes.maxY * cst.blockSize > window.innerHeight - offsetY) {
+				arrows.s.classList.add('visible');
+			} else {
+				arrows.s.classList.remove('visible');
+			}
+			
+			if (maxes.maxX * cst.blockSize > window.innerWidth - offsetX) {
+				arrows.e.classList.add('visible');
+			} else {
+				arrows.e.classList.remove('visible');
+			}
 		};
 		
 		
@@ -468,11 +495,21 @@ function(cst, storage, blocks) {
 			viewport.appendChild(e);
 			elements.yaxis = e;
 			
-			// Virtual Block (shows block that can be placed at cursor position */
+			// Virtual Block (shows block that can be placed at cursor position)
 			e = document.createElement('div');
 			e.classList.add('vblock');
 			e.classList.add('vpitem');
 			elements.vblock = e;
+			
+			// Side arrows (show when blocks are outside the viewport)
+			elements.arrows = {};
+			cst.dirs.forEach(function(dir) {
+				var e = document.createElement('div');
+				e.classList.add('arrow');
+				e.classList.add('arrow_' + dir);
+				viewport.appendChild(e);
+				elements.arrows[dir] = e;
+			});
 		
 			// Set mouse events
 			viewport.addEventListener('mousemove', function(e) { mouseMove(e); });
